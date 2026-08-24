@@ -4,12 +4,35 @@ const request = require('supertest');
 const { openDb } = require('../src/db');
 const { createApp } = require('../src/app');
 
+function cookieHeader(res) {
+  return res.headers['set-cookie'].join('; ');
+}
+
 test('home sets a visitor cookie and shows the disclaimer', async () => {
   const db = openDb(':memory:');
   const app = createApp({ db, now: () => new Date('2026-08-24T12:00:00Z'), weather: { currentForCity: async () => null, recentOrders: () => [] } });
   const res = await request(app).get('/');
   assert.equal(res.status, 200);
   assert.match(res.text, /cannot change the weather/i);
-  assert.match(res.headers['set-cookie'].join(';'), /ministry_visitor=/);
+  const cookie = cookieHeader(res);
+  assert.match(cookie, /ministry_visitor=/);
+  assert.match(cookie, /HttpOnly/i);
+  assert.match(cookie, /SameSite=Lax/i);
+  assert.match(cookie, /Max-Age=31536000/);
   db.close();
+});
+
+test('visitor cookie is Secure in production', async () => {
+  const prev = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'production';
+  try {
+    const db = openDb(':memory:');
+    const app = createApp({ db, now: () => new Date('2026-08-24T12:00:00Z'), weather: { currentForCity: async () => null, recentOrders: () => [] } });
+    const res = await request(app).get('/');
+    assert.match(cookieHeader(res), /Secure/i);
+    db.close();
+  } finally {
+    if (prev === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = prev;
+  }
 });

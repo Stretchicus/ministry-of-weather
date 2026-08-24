@@ -6,6 +6,10 @@ module.exports = {
   observatory: 'The observatory has misplaced its glasses.',
   engineEnRoute: 'The engine is already en route.',
   stampReturned: 'Your filing stamp has been returned. Do not make a habit of this.',
+  matchCredit: 'A satisfactory outcome. Coincidence remains a leading theory.',
+  publicWarning: 'Your display name and reason will appear on the public board. This is entertainment only.',
+  aimedHint: 'The machine is being wheeled into position.',
+  queuedHint: 'Queued — machine not yet aimed.',
   cancelClerks: {
     1: 'The clerk records the withdrawal with a sigh.',
     2: 'The clerk reaches pointedly for the red ink.',

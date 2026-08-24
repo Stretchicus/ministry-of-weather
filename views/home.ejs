@@ -1,4 +1,69 @@
 <section class="home">
-  <p class="eyebrow"><%= brand.tagline %></p>
-  <h1><%= brand.name %></h1>
+  <figure class="weather-machine" aria-labelledby="machine-title">
+    <figcaption class="machine-copy">
+      <p class="eyebrow"><%= brand.tagline %></p>
+      <h1 id="machine-title">The Atmospheric Filing Engine</h1>
+      <p>Now processing improbable skies through brass, steam, and the proper forms.</p>
+    </figcaption>
+    <div class="machine-illustration" aria-hidden="true">
+      <img class="machine-art" src="/img/machine.png" alt="">
+      <div class="machine-boiler">
+        <span class="boiler-rivet rivet-one"></span>
+        <span class="boiler-rivet rivet-two"></span>
+        <span class="boiler-rivet rivet-three"></span>
+        <div class="gauge"><span class="gauge-needle"></span></div>
+      </div>
+      <div class="cog cog-one"></div>
+      <div class="cog cog-two"></div>
+      <div class="cog cog-three"></div>
+      <div class="pipe">
+        <span class="puff puff-one"></span>
+        <span class="puff puff-two"></span>
+        <span class="puff puff-three"></span>
+      </div>
+      <div class="machine-plinth">M.O.W. Mk. XXVII-B</div>
+    </div>
+  </figure>
+
+  <div class="ticker" aria-label="Latest weather filings">
+    <div class="ticker-track">
+      <% for (const card of board.ticker) { %>
+        <span class="ticker-item">
+          ★ <%= card.name %> · <%= card.place %><% if (card.condition) { %> · <%= card.condition %><% } %><% if (card.reason) { %> — <%= card.reason %><% } %>
+        </span>
+      <% } %>
+      <span class="ticker-copy" aria-hidden="true">
+        <% for (const card of board.ticker) { %>
+          <span class="ticker-item">
+            ★ <%= card.name %> · <%= card.place %><% if (card.condition) { %> · <%= card.condition %><% } %><% if (card.reason) { %> — <%= card.reason %><% } %>
+          </span>
+        <% } %>
+      </span>
+    </div>
+  </div>
+
+  <p class="home-cta"><a class="button" href="/request"><%= brand.cta %></a></p>
+
+  <section class="public-board" aria-labelledby="board-title">
+    <p class="eyebrow">Public notices, duly stamped</p>
+    <h2 id="board-title">The weather request board</h2>
+    <div class="notice-grid">
+      <% for (const card of [...board.theatre, ...board.real]) { %>
+        <article class="notice-card notice-<%= card.kind %>">
+          <p class="notice-kind"><%= card.kind === 'theatre' ? 'Current atmospheric chit' : 'Filed request' %></p>
+          <h3><%= card.place %></h3>
+          <% if (card.temperatureC !== null) { %>
+            <p class="notice-weather"><strong><%= card.temperatureC %>°C</strong> · <%= card.condition %></p>
+          <% } %>
+          <p><%= card.reason %></p>
+          <p class="notice-filer">Filed by <strong><%= card.name || 'an unnamed petitioner' %></strong></p>
+        </article>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="departmental-notices" aria-label="Departmental notices">
+    <div class="departmental-notice" aria-hidden="true"></div>
+    <div class="departmental-notice" aria-hidden="true"></div>
+  </section>
 </section>

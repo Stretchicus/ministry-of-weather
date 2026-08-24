@@ -1,9 +1,12 @@
 const { CONDITIONS, WINDS, HUMIDITIES } = require('../../config/weather');
-const { cancelClerks } = require('../../config/copy');
+const { cancelClerks, matchCredit } = require('../../config/copy');
+const { isMatch } = require('./slice');
+const { rivalForSlot } = require('./rival');
 const {
   PERIODS,
   assertSlotBookable,
-  slotStartUtc
+  slotStartUtc,
+  deriveStatus
 } = require('./time');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -112,9 +115,80 @@ function cancelOrder(db, visitor, orderId, now) {
   })();
 }
 
+function listOrdersForVisitor(db, visitorId) {
+  return db.prepare(`
+    SELECT * FROM orders
+    WHERE visitor_id = ?
+    ORDER BY created_at DESC
+  `).all(visitorId);
+}
+
+async function hydrateOrder(order, { weather, now }) {
+  const status = deriveStatus({
+    localDate: order.local_date,
+    period: order.period,
+    timeZone: order.timezone,
+    now,
+    cancelledAt: order.cancelled_at
+  });
+  const start = slotStartUtc(order.local_date, order.period, order.timezone);
+  const view = {
+    ...order,
+    status,
+    actual: null,
+    rival: null,
+    outcome: null,
+    observatory: false,
+    canCancel: !order.cancelled_at && start.getTime() - now.getTime() >= DAY_MS
+  };
+
+  if (status === 'cancelled' || status === 'queued') return view;
+
+  const sliceArgs = {
+    latitude: order.latitude,
+    longitude: order.longitude,
+    localDate: order.local_date,
+    period: order.period,
+    timezone: order.timezone
+  };
+
+  const actual = status === 'aimed'
+    ? await weather.forecastSlice(sliceArgs)
+    : await weather.archiveSlice(sliceArgs);
+
+  if (!actual) {
+    view.observatory = true;
+    return view;
+  }
+
+  view.actual = actual;
+  if (status !== 'settled') return view;
+
+  const requested = {
+    condition: order.condition,
+    temperatureC: order.temperature_c,
+    wind: order.wind,
+    humidity: order.humidity
+  };
+  if (isMatch(requested, actual)) {
+    view.outcome = matchCredit;
+  } else {
+    view.rival = rivalForSlot({
+      latitude: order.latitude,
+      longitude: order.longitude,
+      localDate: order.local_date,
+      period: order.period,
+      actualCondition: actual.condition
+    });
+  }
+  return view;
+}
+
 module.exports = {
   hasActiveFilingToday,
   fileOrder,
   cancelOrder,
-  clerkCopy
+  clerkCopy,
+  listOrdersForVisitor,
+  hydrateOrder
 };

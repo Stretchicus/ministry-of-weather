@@ -1,0 +1,51 @@
+<section class="ledger">
+  <p class="eyebrow">Personal chits</p>
+  <h1>My ledger</h1>
+
+  <% if (withdrawn) { %>
+    <p class="form-error" role="status"><%= copy.stampReturned %></p>
+  <% } %>
+  <% if (clerkNote) { %>
+    <p class="clerk-note"><%= clerkNote %></p>
+  <% } %>
+
+  <% if (!orders.length) { %>
+    <p class="lede">The clerks have no paper in your name. Give a name on Form 27B if you are new to this desk.</p>
+    <p><a class="button" href="/request"><%= brand.cta %></a></p>
+  <% } else { %>
+    <ul class="ledger-list">
+      <% orders.forEach((order) => { %>
+        <li class="ledger-row status-<%= order.status %>">
+          <h2><%= order.place_name %></h2>
+          <p class="lede"><%= order.local_date %> · <%= order.period %> · filed as <%= visitor.display_name || 'unnamed' %></p>
+          <p>Requested: <%= order.condition %>, <%= order.temperature_c %>°C, <%= order.wind %>, <%= order.humidity %> — <%= order.reason %></p>
+
+          <% if (order.status === 'cancelled') { %>
+            <p class="struck">Withdrawn. The clerks have filed the sigh.</p>
+          <% } else if (order.status === 'queued') { %>
+            <p><%= copy.queuedHint %></p>
+          <% } else if (order.observatory) { %>
+            <p><%= copy.observatory %></p>
+          <% } else if (order.status === 'aimed' && order.actual) { %>
+            <p><%= copy.aimedHint %> Forecast: <%= order.actual.condition %>, <%= order.actual.temperatureC %>°C, <%= order.actual.wind %>, <%= order.actual.humidity %>.</p>
+          <% } else if (order.status === 'settled' && order.outcome) { %>
+            <p><%= order.outcome %></p>
+          <% } else if (order.status === 'settled' && order.rival) { %>
+            <p>
+              Alas, the sky did otherwise (<%= order.actual.condition %>, <%= order.actual.temperatureC %>°C).
+              <strong><%= order.rival.name %></strong> had already held the chit
+              — <%= order.rival.reason %>.
+            </p>
+          <% } %>
+
+          <% if (order.canCancel) { %>
+            <form method="post" action="/orders/<%= order.id %>/cancel" class="cancel-form" onsubmit="return confirm('The clerks will not be happy. Withdraw this filing?');">
+              <input type="hidden" name="confirm" value="yes">
+              <button class="button button-quiet" type="submit">Withdraw this filing</button>
+            </form>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>

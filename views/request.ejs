@@ -1,0 +1,96 @@
+<section class="form-27b">
+  <p class="eyebrow">Meteorological requisition</p>
+  <h1>Form 27B</h1>
+  <p class="lede"><%= copy.tooSoon %> Name and reason are public.</p>
+  <p class="public-warning"><%= copy.publicWarning %></p>
+
+  <% if (error) { %>
+    <p class="form-error" role="alert"><%= error %></p>
+  <% } %>
+
+  <% if (locked) { %>
+    <p class="lede">The stamp drawer is shut until midnight, UTC. A timely cancellation returns the stamp — the clerks will not be pleased if this becomes a habit.</p>
+    <p><a class="button" href="/ledger">Consult your ledger</a></p>
+  <% } else { %>
+    <form method="post" action="/request" class="ministry-form">
+      <% if (!visitor.display_name) { %>
+        <label>
+          Call me…
+          <input name="call_me" type="text" minlength="2" maxlength="40" required value="<%= form.call_me %>">
+        </label>
+      <% } else { %>
+        <p>Filing as <strong><%= visitor.display_name %></strong>.</p>
+      <% } %>
+
+      <label>
+        Parish / place
+        <input name="place" type="text" required value="<%= form.place %>">
+      </label>
+
+      <% if (places) { %>
+        <fieldset>
+          <legend>The clerks found several parishes. Tick one.</legend>
+          <% places.forEach((place, index) => { %>
+            <label class="radio">
+              <input type="radio" name="place_index" value="<%= index %>" <%= index === 0 ? 'checked' : '' %>>
+              <%= place.name %><% if (place.country) { %>, <%= place.country %><% } %>
+            </label>
+          <% }) %>
+        </fieldset>
+      <% } %>
+
+      <label>
+        Date (not today; at least 24 hours hence)
+        <input name="local_date" type="date" required value="<%= form.local_date %>">
+      </label>
+
+      <label>
+        Time of day
+        <select name="period">
+          <% PERIODS.forEach((period) => { %>
+            <option value="<%= period %>" <%= form.period === period ? 'selected' : '' %>><%= period %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label>
+        Desired condition
+        <select name="condition">
+          <% CONDITIONS.forEach((condition) => { %>
+            <option value="<%= condition %>" <%= form.condition === condition ? 'selected' : '' %>><%= condition %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label>
+        Temperature (°C)
+        <input name="temperature_c" type="number" min="-20" max="45" required value="<%= form.temperature_c %>">
+      </label>
+
+      <label>
+        Wind
+        <select name="wind">
+          <% WINDS.forEach((wind) => { %>
+            <option value="<%= wind %>" <%= form.wind === wind ? 'selected' : '' %>><%= wind %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label>
+        Humidity
+        <select name="humidity">
+          <% HUMIDITIES.forEach((humidity) => { %>
+            <option value="<%= humidity %>" <%= form.humidity === humidity ? 'selected' : '' %>><%= humidity %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label>
+        Reason (public, 140 characters)
+        <input name="reason" type="text" maxlength="140" required value="<%= form.reason %>">
+      </label>
+
+      <button class="button" type="submit">Stamp and file</button>
+    </form>
+  <% } %>
+</section>

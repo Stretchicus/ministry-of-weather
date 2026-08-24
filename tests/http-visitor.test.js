@@ -23,14 +23,16 @@ test('home sets a visitor cookie and shows the disclaimer', async () => {
   db.close();
 });
 
-test('visitor cookie is Secure in production', async () => {
+test('visitor cookie is Secure only when the request is HTTPS', async () => {
   const prev = process.env.NODE_ENV;
   process.env.NODE_ENV = 'production';
   try {
     const db = openDb(':memory:');
     const app = createApp({ db, now: () => new Date('2026-08-24T12:00:00Z'), weather: { currentForCity: async () => null, recentOrders: () => [] } });
-    const res = await request(app).get('/');
-    assert.match(cookieHeader(res), /Secure/i);
+    const http = await request(app).get('/');
+    assert.doesNotMatch(cookieHeader(http), /Secure/i);
+    const https = await request(app).get('/').set('X-Forwarded-Proto', 'https');
+    assert.match(cookieHeader(https), /Secure/i);
     db.close();
   } finally {
     if (prev === undefined) delete process.env.NODE_ENV;

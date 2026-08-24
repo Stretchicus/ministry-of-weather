@@ -3,6 +3,11 @@ const crypto = require('node:crypto');
 const COOKIE_NAME = 'ministry_visitor';
 const ONE_YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
+function requestIsHttps(req) {
+  const forwarded = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim();
+  return Boolean(req.secure) || forwarded === 'https';
+}
+
 function createVisitorMiddleware({ db, now }) {
   const findVisitor = db.prepare('SELECT * FROM visitors WHERE token = ?');
   const insertVisitor = db.prepare(
@@ -21,7 +26,7 @@ function createVisitorMiddleware({ db, now }) {
         httpOnly: true,
         sameSite: 'lax',
         maxAge: ONE_YEAR_MS,
-        secure: process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production' && requestIsHttps(req)
       });
     }
 

@@ -64,3 +64,49 @@ test('files a valid request and shows it on the ledger', async () => {
   assert.match(ledger.text, /wedding/);
   db.close();
 });
+
+test('place picker keeps the display name on the next stamp', async () => {
+  const db = openDb(':memory:');
+  const weather = {
+    geocode: async () => [
+      { name: 'Croydon', country: 'United Kingdom', latitude: 51.376, longitude: -0.098, timezone: 'UTC' },
+      { name: 'Croydon', country: 'Australia', latitude: -33.883, longitude: 151.1, timezone: 'Australia/Sydney' }
+    ],
+    currentForCity: async () => null,
+    forecastSlice: async () => null,
+    archiveSlice: async () => null
+  };
+  const app = createApp({ db, now: () => new Date('2026-08-24T12:00:00Z'), weather });
+  const agent = request.agent(app);
+  await agent.get('/');
+  const pick = await agent.post('/request').type('form').send({
+    call_me: 'Darren G',
+    place: 'Croydon',
+    local_date: '2026-08-26',
+    period: 'afternoon',
+    condition: 'drizzle',
+    temperature_c: '14',
+    wind: 'calm',
+    humidity: 'pleasant',
+    reason: 'a wedding'
+  });
+  assert.equal(pick.status, 200);
+  assert.match(pick.text, /Tick one/);
+  assert.match(pick.text, /Filing as/);
+  assert.match(pick.text, /name="call_me"/);
+  assert.match(pick.text, /value="Darren G"/);
+  const filed = await agent.post('/request').type('form').send({
+    place: 'Croydon',
+    place_index: '1',
+    local_date: '2026-08-26',
+    period: 'afternoon',
+    condition: 'drizzle',
+    temperature_c: '14',
+    wind: 'calm',
+    humidity: 'pleasant',
+    reason: 'a wedding'
+  });
+  assert.equal(filed.status, 302);
+  assert.equal(filed.headers.location, '/ledger');
+  db.close();
+});

@@ -724,6 +724,16 @@ h1 {
   color: inherit;
 }
 
+.ministry-form input[type="radio"] {
+  width: auto;
+  margin: 0.2em 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  flex-shrink: 0;
+  accent-color: #6b4423;
+}
+
 .form-error,
 .clerk-note {
   padding: 0.9rem 1rem;
@@ -763,10 +773,12 @@ h1 {
   font-size: 0.95rem;
 }
 
-.radio {
+.radio,
+.ministry-form label.radio {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.55rem;
 }
 
 footer {

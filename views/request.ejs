@@ -20,6 +20,7 @@
         </label>
       <% } else { %>
         <p>Filing as <strong><%= visitor.display_name %></strong>.</p>
+        <input type="hidden" name="call_me" value="<%= visitor.display_name %>">
       <% } %>
 
       <label>
@@ -33,7 +34,7 @@
           <% places.forEach((place, index) => { %>
             <label class="radio">
               <input type="radio" name="place_index" value="<%= index %>" <%= index === 0 ? 'checked' : '' %>>
-              <%= place.name %><% if (place.country) { %>, <%= place.country %><% } %>
+              <span><%= place.name %><% if (place.country) { %>, <%= place.country %><% } %></span>
             </label>
           <% }) %>
         </fieldset>

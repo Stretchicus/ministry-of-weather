@@ -109,11 +109,12 @@ h1 {
 
 .machine-illustration {
   position: relative;
+  isolation: isolate;
   min-height: 27rem;
   overflow: hidden;
   border: 3px solid #4b2d18;
   border-radius: 12px;
-  background: linear-gradient(#cfe4f2, #efe4cc);
+  background: #efe4cc;
   box-shadow: 0.8rem 0.9rem 0 #6b4423;
 }
 
@@ -123,60 +124,52 @@ h1 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.92;
 }
 
-.machine-boiler {
+.cog {
   position: absolute;
-  right: 12%;
-  bottom: 4.5rem;
-  width: 55%;
-  height: 62%;
-  border: 0.5rem solid #54351f;
-  border-radius: 50% 50% 20% 20%;
-  background: linear-gradient(90deg, #875728, #d0a55e 48%, #795025);
-  box-shadow: inset 0 0 0 0.35rem #e2bd74, inset 0 -1.5rem 2rem rgb(49 27 12 / 45%);
+  z-index: 2;
+  height: auto;
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
-.boiler-rivet {
-  position: absolute;
-  width: 0.75rem;
-  aspect-ratio: 1;
-  border: 2px solid #54351f;
-  border-radius: 50%;
-  background: #e7c67d;
-}
-
-.rivet-one {
-  top: 22%;
-  left: 8%;
-}
-
-.rivet-two {
-  top: 50%;
-  right: 7%;
-}
-
-.rivet-three {
-  bottom: 9%;
+.cog-one {
   left: 20%;
+  bottom: 12%;
+  width: 34%;
+  animation: spin 14s linear infinite;
+}
+
+.cog-two {
+  left: 40%;
+  bottom: 22%;
+  width: 22%;
+  animation: spin 19s linear infinite reverse;
+}
+
+.cog-three {
+  left: 14%;
+  bottom: 38%;
+  width: 16%;
+  animation: spin 9s linear infinite;
 }
 
 .gauge {
   position: absolute;
-  top: 16%;
-  left: 50%;
-  width: 6rem;
+  z-index: 3;
+  top: 34%;
+  right: 14%;
+  width: 5.4rem;
   aspect-ratio: 1;
-  border: 0.45rem solid #4b2d18;
+  border: 0.35rem solid #4b2d18;
   border-radius: 50%;
-  background: radial-gradient(circle at center, #5d371d 0 7%, transparent 8%), #f3e5c5;
-  transform: translateX(-50%);
+  background: radial-gradient(circle at center, #5d371d 0 6%, transparent 7%), #f3e5c5;
 }
 
 .gauge::before {
   position: absolute;
-  inset: 0.8rem;
+  inset: 0.7rem;
   border-top: 2px dashed #8b1e1e;
   border-radius: 50%;
   content: '';
@@ -185,104 +178,43 @@ h1 {
 .gauge-needle {
   position: absolute;
   bottom: 50%;
-  left: calc(50% - 0.1rem);
-  width: 0.2rem;
-  height: 2rem;
+  left: calc(50% - 0.08rem);
+  width: 0.16rem;
+  height: 1.7rem;
   background: #8b1e1e;
   transform: rotate(-48deg);
   transform-origin: 50% 100%;
   animation: gauge-tick 6s ease-in-out infinite;
 }
 
-.cog {
+.steam {
   position: absolute;
   z-index: 2;
-  aspect-ratio: 1;
-  border: 0.55rem dashed #4a2b17;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, transparent 0 20%, #5d391d 21% 34%, transparent 35%),
-    repeating-conic-gradient(#c99b52 0 13deg, #70451f 14deg 27deg);
-  box-shadow: 0 0 0 0.25rem #d5ad67;
-}
-
-.cog-one {
-  bottom: 3.7rem;
-  left: 9%;
-  width: 8.5rem;
-  animation: spin 12s linear infinite;
-}
-
-.cog-two {
-  bottom: 10.5rem;
-  left: 25%;
-  width: 6.4rem;
-  animation: spin 18s linear infinite;
-  animation-direction: reverse;
-}
-
-.cog-three {
-  right: 5%;
-  bottom: 2.7rem;
+  top: 4%;
+  right: 24%;
   width: 5rem;
-  animation: spin 8s linear infinite;
-}
-
-.pipe {
-  position: absolute;
-  z-index: 2;
-  top: 2rem;
-  right: 13%;
-  width: 4.5rem;
-  height: 8rem;
-  border: 0.6rem solid #4b2d18;
-  border-top: 0;
-  background: linear-gradient(90deg, #805126, #d0a05a, #70451f);
-}
-
-.pipe::before {
-  position: absolute;
-  top: -1rem;
-  left: -1rem;
-  width: 5.3rem;
-  height: 1.4rem;
-  border: 0.45rem solid #4b2d18;
-  background: #c28e48;
-  content: '';
+  height: 6rem;
+  pointer-events: none;
 }
 
 .puff {
   position: absolute;
-  top: -2.5rem;
-  left: 50%;
-  width: 2.5rem;
-  aspect-ratio: 1;
-  border: 2px solid #6b5a46;
-  border-radius: 50%;
-  background: rgb(248 239 217 / 90%);
+  left: 30%;
+  width: 2.8rem;
+  height: 1.8rem;
+  border: 2px solid #3b2a14;
+  border-radius: 1.4rem 1.6rem 1.2rem 1.5rem;
+  background: #f7f1e2;
   opacity: 0;
-  animation: puff 4s ease-out infinite;
+  animation: puff 5s ease-out infinite;
 }
 
 .puff-two {
-  animation-delay: 1.3s;
+  animation-delay: 1.6s;
 }
 
 .puff-three {
-  animation-delay: 2.6s;
-}
-
-.machine-plinth {
-  position: absolute;
-  right: 6%;
-  bottom: 1.2rem;
-  left: 6%;
-  padding: 0.7rem;
-  border: 0.25rem solid #4b2d18;
-  background: #d2a55f;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-align: center;
+  animation-delay: 3.2s;
 }
 
 .ticker {

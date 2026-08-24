@@ -19,7 +19,23 @@ function normalizeSearch(query) {
   return query.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
+function hourlyForDate(hourly, localDate) {
+  const indices = hourly.time
+    .map((time, index) => ({ time, index }))
+    .filter(({ time }) => time.slice(0, 10) === localDate)
+    .map(({ index }) => index);
+
+  return {
+    time: indices.map((index) => hourly.time[index]),
+    temperature_2m: indices.map((index) => hourly.temperature_2m[index]),
+    relative_humidity_2m: indices.map((index) => hourly.relative_humidity_2m[index]),
+    weather_code: indices.map((index) => hourly.weather_code[index]),
+    wind_speed_10m: indices.map((index) => hourly.wind_speed_10m[index])
+  };
+}
+
 function createWeather({ db, fetchFn, now }) {
+  const inFlight = new Map();
   const readCache = db.prepare(
     'SELECT payload_json, fetched_at FROM weather_cache WHERE cache_key = ?'
   );
@@ -38,14 +54,26 @@ function createWeather({ db, fetchFn, now }) {
       return JSON.parse(cached.payload_json);
     }
 
+    const pending = inFlight.get(cacheKey);
+    if (pending) return pending;
+
+    const request = (async () => {
+      try {
+        const response = await fetchFn(url);
+        if (!response.ok) return null;
+        const payload = await response.json();
+        writeCache.run(cacheKey, kind, JSON.stringify(payload), utcNowIso(now()));
+        return payload;
+      } catch {
+        return null;
+      }
+    })();
+    inFlight.set(cacheKey, request);
+
     try {
-      const response = await fetchFn(url);
-      if (!response.ok) return null;
-      const payload = await response.json();
-      writeCache.run(cacheKey, kind, JSON.stringify(payload), utcNowIso(now()));
-      return payload;
-    } catch {
-      return null;
+      return await request;
+    } finally {
+      inFlight.delete(cacheKey);
     }
   }
 
@@ -75,7 +103,7 @@ function createWeather({ db, fetchFn, now }) {
     const host = isArchive
       ? 'https://archive-api.open-meteo.com/v1/archive'
       : 'https://api.open-meteo.com/v1/forecast';
-    const dateQuery = isArchive ? `&start_date=${localDate}&end_date=${localDate}` : '';
+    const dateQuery = `&start_date=${localDate}&end_date=${localDate}`;
     const url = `${host}?latitude=${latitude}&longitude=${longitude}${dateQuery}&hourly=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=${encodeURIComponent(timezone)}`;
     const payload = await cachedFetch({
       cacheKey: `${kind}:${lat3}:${lon3}:${localDate}`,
@@ -84,7 +112,7 @@ function createWeather({ db, fetchFn, now }) {
       url
     });
     if (payload === null) return null;
-    return representativeSlice(payload.hourly, period);
+    return representativeSlice(hourlyForDate(payload.hourly, localDate), period);
   }
 
   function forecastSlice(args) {

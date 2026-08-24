@@ -38,10 +38,10 @@ function zoneOffsetMs(date, timeZone) {
 }
 
 function wallTimeToUtc(timeZone, year, month, day, hour) {
-  let utc = Date.UTC(year, month - 1, day, hour, 0, 0);
-  utc -= zoneOffsetMs(new Date(utc), timeZone);
-  utc -= zoneOffsetMs(new Date(utc), timeZone);
-  return new Date(utc);
+  const naive = Date.UTC(year, month - 1, day, hour, 0, 0);
+  const once = naive - zoneOffsetMs(new Date(naive), timeZone);
+  const twice = naive - zoneOffsetMs(new Date(once), timeZone);
+  return new Date(twice);
 }
 
 function ymd(localDate) {

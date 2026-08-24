@@ -43,6 +43,27 @@ test('allows tomorrow afternoon when that is >= 24h', () => {
   assert.equal(result.ok, true);
 });
 
+test('slotStartUtc converts a New York summer morning to UTC', () => {
+  assert.equal(
+    time.slotStartUtc('2026-08-25', 'morning', 'America/New_York').toISOString(),
+    '2026-08-25T10:00:00.000Z'
+  );
+});
+
+test('slotStartUtc converts a London winter morning to UTC', () => {
+  assert.equal(
+    time.slotStartUtc('2026-01-15', 'morning', 'Europe/London').toISOString(),
+    '2026-01-15T06:00:00.000Z'
+  );
+});
+
+test('slotEndUtc converts New York evening midnight to UTC', () => {
+  assert.equal(
+    time.slotEndUtc('2026-08-25', 'evening', 'America/New_York').toISOString(),
+    '2026-08-26T04:00:00.000Z'
+  );
+});
+
 test('deriveStatus: cancelled wins', () => {
   assert.equal(time.deriveStatus({
     localDate: '2027-01-01',

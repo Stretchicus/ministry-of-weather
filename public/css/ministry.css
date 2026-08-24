@@ -37,7 +37,7 @@ a {
 .disclaimer {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 5;
   padding: 0.75rem 1rem;
   color: #fff8e8;
   background: #8b1e1e;
@@ -734,6 +734,31 @@ h1 {
   accent-color: #6b4423;
 }
 
+.place-field,
+.place-field-label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.place-field-row {
+  display: flex;
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.place-field-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.button-inline {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.92rem;
+  box-shadow: 0.2rem 0.22rem 0 #4e301d;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
 .form-error,
 .clerk-note {
   padding: 0.9rem 1rem;
@@ -794,6 +819,15 @@ footer {
 
   main {
     padding-block: 2rem;
+  }
+
+  .place-field-row {
+    flex-wrap: wrap;
+  }
+
+  .place-field-row .button-inline {
+    width: 100%;
+    text-align: center;
   }
 
   .weather-machine,

@@ -4,13 +4,15 @@ const request = require('supertest');
 const { openDb } = require('../src/db');
 const { createApp } = require('../src/app');
 
-function appWithGeo() {
+function appWithGeo(weatherOverrides = {}) {
   const db = openDb(':memory:');
   const weather = {
-    geocode: async () => [{ name: 'Croydon', country: 'United Kingdom', latitude: 51.376, longitude: -0.098, timezone: 'UTC' }],
+    geocode: async () => [{ name: 'Croydon', country: 'United Kingdom', label: 'Croydon, England, United Kingdom', latitude: 51.376, longitude: -0.098, timezone: 'UTC' }],
+    reverseGeocode: async () => [],
     currentForCity: async () => null,
     forecastSlice: async () => null,
-    archiveSlice: async () => null
+    archiveSlice: async () => null,
+    ...weatherOverrides
   };
   const app = createApp({ db, now: () => new Date('2026-08-24T12:00:00Z'), weather });
   return { db, app };
@@ -69,8 +71,8 @@ test('place picker keeps the display name on the next stamp', async () => {
   const db = openDb(':memory:');
   const weather = {
     geocode: async () => [
-      { name: 'Croydon', country: 'United Kingdom', latitude: 51.376, longitude: -0.098, timezone: 'UTC' },
-      { name: 'Croydon', country: 'Australia', latitude: -33.883, longitude: 151.1, timezone: 'Australia/Sydney' }
+      { name: 'Croydon', country: 'United Kingdom', label: 'Croydon, England, United Kingdom', latitude: 51.376, longitude: -0.098, timezone: 'UTC' },
+      { name: 'Croydon', country: 'Australia', label: 'Croydon, Victoria, Australia', latitude: -33.883, longitude: 151.1, timezone: 'Australia/Sydney' }
     ],
     currentForCity: async () => null,
     forecastSlice: async () => null,
@@ -108,5 +110,117 @@ test('place picker keeps the display name on the next stamp', async () => {
   });
   assert.equal(filed.status, 302);
   assert.equal(filed.headers.location, '/ledger');
+  db.close();
+});
+
+test('place picker shows county or state with the parish name', async () => {
+  const { db, app } = appWithGeo({
+    geocode: async () => [
+      { name: 'Stafford', country: 'United Kingdom', label: 'Stafford, England, United Kingdom', latitude: 52.81, longitude: -2.12, timezone: 'Europe/London' },
+      { name: 'Stafford', country: 'United States', label: 'Stafford, Virginia, United States', latitude: 38.42, longitude: -77.41, timezone: 'America/New_York' }
+    ]
+  });
+  const agent = request.agent(app);
+  await agent.get('/');
+  const pick = await agent.post('/request').type('form').send({
+    call_me: 'Darren G',
+    place: 'Stafford',
+    local_date: '2026-08-26',
+    period: 'afternoon',
+    condition: 'drizzle',
+    temperature_c: '14',
+    wind: 'calm',
+    humidity: 'pleasant',
+    reason: 'a wedding'
+  });
+  assert.equal(pick.status, 200);
+  assert.match(pick.text, /Stafford, England, United Kingdom/);
+  assert.match(pick.text, /Stafford, Virginia, United States/);
+  db.close();
+});
+
+test('form 27B offers to take a bearing', async () => {
+  const { db, app } = appWithGeo();
+  const agent = request.agent(app);
+  await agent.get('/');
+  const res = await agent.get('/request');
+  assert.equal(res.status, 200);
+  assert.match(res.text, /I am standing here/);
+  assert.match(res.text, /name="here_lat"/);
+  assert.match(res.text, /name="here_lon"/);
+  db.close();
+});
+
+test('a bearing fills the parish without stamping', async () => {
+  const { db, app } = appWithGeo({
+    geocode: async () => {
+      throw new Error('should not search by name');
+    },
+    reverseGeocode: async (lat, lon) => {
+      assert.equal(lat, 38.422);
+      assert.equal(lon, -77.408);
+      return [{
+        name: 'Stafford',
+        country: 'United States',
+        label: 'Stafford, Virginia, United States',
+        latitude: lat,
+        longitude: lon,
+        timezone: 'America/New_York'
+      }];
+    }
+  });
+  const agent = request.agent(app);
+  await agent.get('/');
+  const res = await agent.post('/request').type('form').send({
+    intent: 'here',
+    here_lat: '38.422',
+    here_lon: '-77.408',
+    call_me: 'Darren G'
+  });
+  assert.equal(res.status, 200);
+  assert.match(res.text, /Stafford, Virginia, United States/);
+  assert.match(res.text, /value="38.422"/);
+  assert.equal(res.headers.location, undefined);
+  db.close();
+});
+
+test('stamping with a bearing files the standing parish', async () => {
+  let reverseCalls = 0;
+  const { db, app } = appWithGeo({
+    geocode: async () => {
+      throw new Error('should not search by name');
+    },
+    reverseGeocode: async () => {
+      reverseCalls += 1;
+      return [{
+        name: 'Stafford',
+        country: 'United States',
+        label: 'Stafford, Virginia, United States',
+        latitude: 38.422,
+        longitude: -77.408,
+        timezone: 'UTC'
+      }];
+    }
+  });
+  const agent = request.agent(app);
+  await agent.get('/');
+  const res = await agent.post('/request').type('form').send({
+    call_me: 'Darren G',
+    place: 'Stafford, Virginia, United States',
+    here_lat: '38.422',
+    here_lon: '-77.408',
+    local_date: '2026-08-26',
+    period: 'afternoon',
+    condition: 'drizzle',
+    temperature_c: '14',
+    wind: 'calm',
+    humidity: 'pleasant',
+    reason: 'a wedding'
+  });
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.location, '/ledger');
+  assert.equal(reverseCalls, 1);
+  const ledger = await agent.get('/ledger');
+  assert.match(ledger.text, /Stafford/);
   db.close();
 });

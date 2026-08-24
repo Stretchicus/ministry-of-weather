@@ -23,10 +23,24 @@
         <input type="hidden" name="call_me" value="<%= visitor.display_name %>">
       <% } %>
 
-      <label>
-        Parish / place
-        <input name="place" type="text" required value="<%= form.place %>">
-      </label>
+      <div class="place-field">
+        <label class="place-field-label" for="place">Parish / place</label>
+        <div class="place-field-row">
+          <input id="place" name="place" type="text" required value="<%= form.place %>">
+          <button
+            type="button"
+            class="button button-inline"
+            id="whereabouts"
+            data-denied="<%= copy.whereaboutsDenied %>"
+            data-insecure="<%= copy.whereaboutsInsecure %>"
+            data-failed="<%= copy.whereaboutsFailed %>"
+          ><%= copy.whereabouts %></button>
+        </div>
+        <p class="clerk-note" id="whereabouts-note" hidden></p>
+        <input type="hidden" name="here_lat" id="here_lat" value="<%= form.here_lat %>">
+        <input type="hidden" name="here_lon" id="here_lon" value="<%= form.here_lon %>">
+        <button type="submit" name="intent" value="here" formnovalidate hidden id="submit-here">Take a bearing</button>
+      </div>
 
       <% if (places) { %>
         <fieldset>
@@ -34,7 +48,7 @@
           <% places.forEach((place, index) => { %>
             <label class="radio">
               <input type="radio" name="place_index" value="<%= index %>" <%= index === 0 ? 'checked' : '' %>>
-              <span><%= place.name %><% if (place.country) { %>, <%= place.country %><% } %></span>
+              <span><%= place.label || [place.name, place.country].filter(Boolean).join(', ') %></span>
             </label>
           <% }) %>
         </fieldset>
@@ -93,5 +107,6 @@
 
       <button class="button" type="submit">Stamp and file</button>
     </form>
+    <script src="/js/form-27b.js" defer></script>
   <% } %>
 </section>

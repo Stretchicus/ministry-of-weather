@@ -23,6 +23,8 @@ function formState(body = {}) {
   return {
     call_me: body.call_me || '',
     place: body.place || '',
+    here_lat: body.here_lat || '',
+    here_lon: body.here_lon || '',
     local_date: body.local_date || '',
     period: body.period || 'afternoon',
     condition: body.condition || 'sun',
@@ -31,6 +33,22 @@ function formState(body = {}) {
     humidity: body.humidity || 'pleasant',
     reason: body.reason || ''
   };
+}
+
+function parseFix(body) {
+  const lat = Number.parseFloat(body.here_lat);
+  const lon = Number.parseFloat(body.here_lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+  return { lat, lon };
+}
+
+async function resolvePlaces(weather, body) {
+  const fix = parseFix(body);
+  if (fix) return weather.reverseGeocode(fix.lat, fix.lon);
+  const query = typeof body.place === 'string' ? body.place.trim() : '';
+  if (!query) return [];
+  return weather.geocode(query);
 }
 
 function createApp({ db, now, weather }) {
@@ -101,15 +119,41 @@ function createApp({ db, now, weather }) {
       });
     }
 
-    const query = typeof body.place === 'string' ? body.place.trim() : '';
-    let places = await weather.geocode(query);
+    const locating = body.intent === 'here';
+    const fix = parseFix(body);
+    if (locating && !fix) {
+      return res.status(200).render('layout', {
+        page: 'request',
+        visitor,
+        locked: false,
+        error: copy.whereaboutsFailed,
+        places: null,
+        form
+      });
+    }
+
+    const places = await resolvePlaces(weather, body);
     if (!places || places.length === 0) {
       return res.status(200).render('layout', {
         page: 'request',
         visitor,
         locked: false,
-        error: copy.parishNotFound,
+        error: locating ? copy.whereaboutsFailed : copy.parishNotFound,
         places: null,
+        form
+      });
+    }
+
+    if (locating) {
+      form.place = places[0].label;
+      form.here_lat = String(fix.lat);
+      form.here_lon = String(fix.lon);
+      return res.status(200).render('layout', {
+        page: 'request',
+        visitor,
+        locked: false,
+        error: null,
+        places: places.length > 1 ? places : null,
         form
       });
     }
@@ -131,7 +175,7 @@ function createApp({ db, now, weather }) {
     }
 
     const result = fileOrder(db, visitor, {
-      placeName: place.name,
+      placeName: place.shortName || place.name,
       country: place.country,
       latitude: place.latitude,
       longitude: place.longitude,

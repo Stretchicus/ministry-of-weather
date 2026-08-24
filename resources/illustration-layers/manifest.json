@@ -1,0 +1,65 @@
+{
+  "note": "Regenerated 2026-08-24",
+  "files": [
+    {
+      "file": "01-landscape.png",
+      "kind": "full-canvas landscape, no machine"
+    },
+    {
+      "file": "02-machine.png",
+      "kind": "machine on transparent"
+    },
+    {
+      "file": "00-sky.png",
+      "kind": "parchment sky"
+    },
+    {
+      "file": "03-sun.png",
+      "kind": "sun (unchanged)"
+    },
+    {
+      "file": "04-balloon.png",
+      "kind": "balloon, strings punched"
+    },
+    {
+      "file": "05-cloud-01.png",
+      "kind": "filled cloud"
+    },
+    {
+      "file": "05-cloud-02.png",
+      "kind": "filled cloud"
+    },
+    {
+      "file": "05-cloud-03.png",
+      "kind": "filled cloud"
+    },
+    {
+      "file": "05-cloud-04.png",
+      "kind": "filled cloud"
+    },
+    {
+      "file": "05-cloud-05.png",
+      "kind": "filled cloud"
+    },
+    {
+      "file": "06-base-bar.png",
+      "kind": "riveted base bar"
+    },
+    {
+      "file": "cog-overlay-a.png",
+      "kind": "cog overlay (unchanged)"
+    },
+    {
+      "file": "cog-overlay-b.png",
+      "kind": "cog overlay (unchanged)"
+    },
+    {
+      "file": "cog-overlay-c.png",
+      "kind": "cog overlay (unchanged)"
+    },
+    {
+      "file": "zz-original-machine.png",
+      "kind": "original reference"
+    }
+  ]
+}

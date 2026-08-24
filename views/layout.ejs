@@ -9,7 +9,10 @@
   <body>
     <aside class="disclaimer" role="note"><%= brand.disclaimerFull %></aside>
     <header class="site-header">
-      <a class="brand" href="/"><%= brand.name %></a>
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <%= brand.name %>
+      </a>
       <nav aria-label="Main navigation">
         <a href="/"><%= brand.nav.home %></a>
         <a href="/request"><%= brand.nav.file %></a>

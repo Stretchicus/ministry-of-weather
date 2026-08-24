@@ -62,7 +62,7 @@
     <h2 id="board-title">The weather request board</h2>
     <div class="notice-grid">
       <% for (const card of [...board.theatre, ...board.real]) { %>
-        <article class="notice-card notice-<%= card.kind %>">
+        <article class="notice-card notice-<%= card.kind %><%= card.stamped ? ' notice-stamped' : '' %>">
           <p class="notice-kind"><%= card.kind === 'theatre' ? 'Current atmospheric chit' : 'Filed request' %></p>
           <h3><%= card.place %></h3>
           <% if (card.temperatureC !== null) { %>

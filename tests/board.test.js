@@ -52,6 +52,34 @@ test('real cards contain the eight newest active orders', async () => {
   db.close();
 });
 
+test('only settled real filings carry a stamp', async () => {
+  const db = openDb(':memory:');
+  const visitor = db.prepare(
+    'INSERT INTO visitors (token, display_name, created_at) VALUES (?, ?, ?)'
+  ).run('stamp-visitor', 'Pat Pending', '2026-08-01T00:00:00.000Z');
+  const insert = db.prepare(`
+    INSERT INTO orders (
+      visitor_id, place_name, latitude, longitude, timezone, local_date,
+      period, condition, temperature_c, wind, humidity, reason, created_at
+    ) VALUES (?, ?, 0, 0, 'UTC', ?, 'morning', 'sun', 20, 'calm', 'pleasant', ?, ?)
+  `);
+  insert.run(visitor.lastInsertRowid, 'Settled Place', '2026-08-20', 'done', '2026-08-01T00:00:00.000Z');
+  insert.run(visitor.lastInsertRowid, 'Aimed Place', '2026-08-30', 'soon', '2026-08-02T00:00:00.000Z');
+  insert.run(visitor.lastInsertRowid, 'Queued Place', '2026-12-25', 'later', '2026-08-03T00:00:00.000Z');
+
+  const board = await buildBoard({
+    db,
+    weather: { currentForCity: async () => ({ temperatureC: 14, condition: 'drizzle', wind: 'calm', humidity: 'pleasant' }) },
+    now: new Date('2026-08-24T12:00:00Z')
+  });
+
+  assert.equal(board.theatre[0].stamped, true);
+  assert.equal(board.real.find((card) => card.place === 'Queued Place').stamped, false);
+  assert.equal(board.real.find((card) => card.place === 'Aimed Place').stamped, false);
+  assert.equal(board.real.find((card) => card.place === 'Settled Place').stamped, true);
+  db.close();
+});
+
 test('missing current weather keeps observatory cards without digits', async () => {
   const db = openDb(':memory:');
   const board = await buildBoard({

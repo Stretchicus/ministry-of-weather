@@ -520,32 +520,13 @@ h1 {
   box-shadow: 0.25rem 0.35rem 0 rgb(76 46 25 / 22%);
 }
 
-.notice-card::after {
+.notice-card.notice-stamped::after {
   position: absolute;
-  right: 0.7rem;
-  bottom: 0.6rem;
-  width: 2.5rem;
-  aspect-ratio: 1;
-  border: 2px solid #8b1e1e;
-  border-radius: 50%;
-  content: 'M';
-  color: #8b1e1e;
-  font-weight: 700;
-  line-height: 2.25rem;
-  text-align: center;
-  transform: rotate(-12deg);
-}
-
-.notice-card.notice-theatre::after {
   right: 0.35rem;
   bottom: 0.2rem;
   width: 4.35rem;
-  border: 0;
-  border-radius: 0;
+  aspect-ratio: 1;
   background-color: #520a0a;
-  color: transparent;
-  font-size: 0;
-  line-height: 0;
   content: '';
   -webkit-mask: url('/img/RubberStamp.png') center / contain no-repeat;
   mask: url('/img/RubberStamp.png') center / contain no-repeat;
@@ -580,7 +561,7 @@ h1 {
   padding-right: 3rem;
 }
 
-.notice-card.notice-theatre .notice-filer {
+.notice-card.notice-stamped .notice-filer {
   padding-right: 4.6rem;
 }
 

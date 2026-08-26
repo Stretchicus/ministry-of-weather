@@ -20,7 +20,10 @@
           <div class="forms-panel">
             <p class="forms-heading">Frequent forms</p>
             <% forms.frequent.forEach((form) => { %>
-              <a class="forms-item" href="<%= form.href %>"><%= form.label %></a>
+              <a class="forms-item" href="<%= form.href %>">
+                <span class="forms-code"><%= form.code %></span>
+                <span class="forms-name"><%= form.name %></span>
+              </a>
             <% }) %>
             <p class="forms-heading">Other schedules</p>
             <% forms.other.forEach((form) => { %>

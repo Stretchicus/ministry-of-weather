@@ -91,6 +91,27 @@ function deriveStatus({ localDate, period, timeZone, now, cancelledAt }) {
   return 'aimed';
 }
 
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function formatUtcStamp(iso) {
+  const date = new Date(iso);
+  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}, ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+}
+
+function formatSlotLabel(localDate, period) {
+  const spec = PERIODS[period];
+  const [year, month, day] = localDate.split('-').map(Number);
+  const end = spec.endHour === 24 ? '24:00' : `${pad(spec.endHour)}:00`;
+  return `${day} ${MONTHS[month - 1]} ${year}, ${period} (${pad(spec.startHour)}:00–${end})`;
+}
+
+function formatWeatherLine({ condition, temperatureC, wind, humidity }) {
+  return `${condition}, ${temperatureC}°C, ${wind}, ${humidity}`;
+}
+
 module.exports = {
   FORECAST_HORIZON_DAYS,
   PERIODS,
@@ -99,5 +120,8 @@ module.exports = {
   slotEndUtc,
   assertSlotBookable,
   deriveStatus,
-  addDays
+  addDays,
+  formatUtcStamp,
+  formatSlotLabel,
+  formatWeatherLine
 };

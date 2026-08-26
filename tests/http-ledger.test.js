@@ -26,7 +26,9 @@ test('queued orders do not call forecast or archive', async () => {
     condition: 'sun', temperatureC: 10, wind: 'calm', humidity: 'pleasant', reason: 'Christmas'
   }, now());
   const res = await agent.get('/ledger');
-  assert.match(res.text, /not yet aimed/i);
+  assert.match(res.text, /Date\/time requested/i);
+  assert.match(res.text, /Date\/time for/i);
+  assert.match(res.text, /Pending/i);
   assert.deepEqual(calls, []);
   db.close();
 });
@@ -50,6 +52,34 @@ test('settled mismatch names a rival', async () => {
     condition: 'sun', temperatureC: 22, wind: 'calm', humidity: 'dry', reason: 'a picnic'
   }, new Date('2026-08-01T12:00:00Z'));
   const res = await agent.get('/ledger');
-  assert.match(res.text, /already/i);
+  assert.match(res.text, /Denied/);
+  assert.match(res.text, /Multiple weather requests/i);
+  assert.match(res.text, /chosen instead/i);
+  assert.match(res.text, /22°C/);
+  assert.match(res.text, /8°C/);
+  db.close();
+});
+
+test('settled match is marked accepted', async () => {
+  const db = openDb(':memory:');
+  const weather = {
+    currentForCity: async () => null,
+    forecastSlice: async () => null,
+    archiveSlice: async () => ({ temperatureC: 22, condition: 'sun', wind: 'calm', humidity: 'dry' })
+  };
+  const now = () => new Date('2026-08-24T12:00:00Z');
+  const app = createApp({ db, now, weather });
+  const agent = request.agent(app);
+  await agent.get('/');
+  db.prepare(`UPDATE visitors SET display_name = ?`).run('Darren G');
+  const visitor = db.prepare(`SELECT * FROM visitors`).get();
+  fileOrder(db, visitor, {
+    placeName: 'Croydon', country: 'UK', latitude: 51.376, longitude: -0.098,
+    timezone: 'UTC', localDate: '2026-08-20', period: 'morning',
+    condition: 'sun', temperatureC: 22, wind: 'calm', humidity: 'dry', reason: 'a picnic'
+  }, new Date('2026-08-01T12:00:00Z'));
+  const res = await agent.get('/ledger');
+  assert.match(res.text, /Accepted/);
+  assert.doesNotMatch(res.text, /Denied/);
   db.close();
 });

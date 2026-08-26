@@ -1,6 +1,6 @@
 module.exports = {
   frequent: [
-    { href: '/request', label: 'Req. Form 27B' }
+    { href: '/request', code: '27B', name: 'Weather requisition' }
   ],
   other: [
     {

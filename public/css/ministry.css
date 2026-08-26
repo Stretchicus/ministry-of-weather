@@ -577,11 +577,6 @@ h1 {
   border-right: 1px dashed #8f704b;
 }
 
-.home-cta {
-  margin: 0;
-  text-align: center;
-}
-
 .button {
   display: inline-block;
   padding: 1rem 1.5rem;
@@ -1096,6 +1091,14 @@ h1 {
   background: #f3d7c4;
 }
 
+.ledger h1 {
+  max-width: none;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .ledger-list {
   list-style: none;
   padding: 0;
@@ -1105,8 +1108,40 @@ h1 {
 
 .ledger-row {
   padding: 1.25rem;
-  border: 1px solid #9f7d50;
-  background: #ead9b7;
+  border: 3px double #281b12;
+  background: #f4ead3;
+}
+
+.ledger-facts {
+  display: grid;
+  grid-template-columns: minmax(8rem, 12rem) 1fr;
+  gap: 0.45rem 1rem;
+  margin: 0.85rem 0 0;
+}
+
+.ledger-facts dt {
+  margin: 0;
+  color: #6b4423;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ledger-facts dd {
+  margin: 0;
+}
+
+.ledger-verdict {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.verdict-accepted .ledger-verdict {
+  color: #3a5a28;
+}
+
+.verdict-denied .ledger-verdict {
+  color: #8b1e1e;
 }
 
 .ledger-row.status-cancelled .struck,
@@ -1153,6 +1188,15 @@ footer {
 
   .place-field-row {
     flex-wrap: wrap;
+  }
+
+  .ledger-facts {
+    grid-template-columns: 1fr;
+    gap: 0.15rem 0;
+  }
+
+  .ledger-facts dd {
+    margin-bottom: 0.55rem;
   }
 
   .place-field-row .bearing-mark {

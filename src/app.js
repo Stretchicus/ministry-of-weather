@@ -5,7 +5,7 @@ const brand = require('../config/brand');
 const copy = require('../config/copy');
 const forms = require('../config/forms');
 const { CONDITIONS, WINDS, HUMIDITIES } = require('../config/weather');
-const { PERIODS } = require('./lib/time');
+const { PERIODS, formatUtcStamp, formatSlotLabel, formatWeatherLine } = require('./lib/time');
 const { buildBoard } = require('./lib/board');
 const {
   hasActiveFilingToday,
@@ -246,7 +246,18 @@ function createApp({ db, now, weather }) {
           actual: null,
           rival: null,
           outcome: null,
-          observatory: false
+          observatory: false,
+          filedAtLabel: formatUtcStamp(order.created_at),
+          slotLabel: formatSlotLabel(order.local_date, order.period),
+          requestedWeather: formatWeatherLine({
+            condition: order.condition,
+            temperatureC: order.temperature_c,
+            wind: order.wind,
+            humidity: order.humidity
+          }),
+          actualWeather: null,
+          verdict: order.cancelled_at ? 'withdrawn' : 'pending',
+          denialReason: null
         })),
         withdrawn: false,
         clerkNote: result.code === 'too_late' ? copy.engineEnRoute : null

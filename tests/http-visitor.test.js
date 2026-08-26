@@ -14,9 +14,9 @@ test('home sets a visitor cookie and shows the disclaimer', async () => {
   const res = await request(app).get('/');
   assert.equal(res.status, 200);
   assert.match(res.text, /cannot change the weather/i);
-  assert.match(res.text, /File Form 27B/);
-  assert.match(res.text, /Req\. Form 27B/);
   assert.match(res.text, /Frequent forms/);
+  assert.match(res.text, /forms-code">27B/);
+  assert.match(res.text, /Weather requisition/);
   assert.doesNotMatch(res.text, />File 27B</);
   const cookie = cookieHeader(res);
   assert.match(cookie, /ministry_visitor=/);

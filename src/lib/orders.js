@@ -1,12 +1,15 @@
 const { CONDITIONS, WINDS, HUMIDITIES } = require('../../config/weather');
-const { cancelClerks, matchCredit } = require('../../config/copy');
+const { cancelClerks, matchCredit, deniedReason } = require('../../config/copy');
 const { isMatch } = require('./slice');
 const { rivalForSlot } = require('./rival');
 const {
   PERIODS,
   assertSlotBookable,
   slotStartUtc,
-  deriveStatus
+  deriveStatus,
+  formatUtcStamp,
+  formatSlotLabel,
+  formatWeatherLine
 } = require('./time');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -139,10 +142,25 @@ async function hydrateOrder(order, { weather, now }) {
     rival: null,
     outcome: null,
     observatory: false,
+    filedAtLabel: formatUtcStamp(order.created_at),
+    slotLabel: formatSlotLabel(order.local_date, order.period),
+    requestedWeather: formatWeatherLine({
+      condition: order.condition,
+      temperatureC: order.temperature_c,
+      wind: order.wind,
+      humidity: order.humidity
+    }),
+    actualWeather: null,
+    verdict: 'pending',
+    denialReason: null,
     canCancel: !order.cancelled_at && start.getTime() - now.getTime() >= DAY_MS
   };
 
-  if (status === 'cancelled' || status === 'queued') return view;
+  if (status === 'cancelled') {
+    view.verdict = 'withdrawn';
+    return view;
+  }
+  if (status === 'queued') return view;
 
   const sliceArgs = {
     latitude: order.latitude,
@@ -158,10 +176,12 @@ async function hydrateOrder(order, { weather, now }) {
 
   if (!actual) {
     view.observatory = true;
+    view.verdict = 'observatory';
     return view;
   }
 
   view.actual = actual;
+  view.actualWeather = formatWeatherLine(actual);
   if (status !== 'settled') return view;
 
   const requested = {
@@ -172,6 +192,7 @@ async function hydrateOrder(order, { weather, now }) {
   };
   if (isMatch(requested, actual)) {
     view.outcome = matchCredit;
+    view.verdict = 'accepted';
   } else {
     view.rival = rivalForSlot({
       latitude: order.latitude,
@@ -180,6 +201,8 @@ async function hydrateOrder(order, { weather, now }) {
       period: order.period,
       actualCondition: actual.condition
     });
+    view.verdict = 'denied';
+    view.denialReason = deniedReason(view.rival.name);
   }
   return view;
 }

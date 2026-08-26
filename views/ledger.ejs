@@ -15,28 +15,42 @@
   <% } else { %>
     <ul class="ledger-list">
       <% orders.forEach((order) => { %>
-        <li class="ledger-row status-<%= order.status %>">
+        <li class="ledger-row status-<%= order.status %> verdict-<%= order.verdict %>">
           <h2><%= order.place_name %></h2>
-          <p class="lede"><%= order.local_date %> · <%= order.period %> · filed as <%= visitor.display_name || 'unnamed' %></p>
-          <p>Requested: <%= order.condition %>, <%= order.temperature_c %>°C, <%= order.wind %>, <%= order.humidity %> — <%= order.reason %></p>
-
-          <% if (order.status === 'cancelled') { %>
-            <p class="struck">Withdrawn. The clerks have filed the sigh.</p>
-          <% } else if (order.status === 'queued') { %>
-            <p><%= copy.queuedHint %></p>
-          <% } else if (order.observatory) { %>
-            <p><%= copy.observatory %></p>
-          <% } else if (order.status === 'aimed' && order.actual) { %>
-            <p><%= copy.aimedHint %> Forecast: <%= order.actual.condition %>, <%= order.actual.temperatureC %>°C, <%= order.actual.wind %>, <%= order.actual.humidity %>.</p>
-          <% } else if (order.status === 'settled' && order.outcome) { %>
-            <p><%= order.outcome %></p>
-          <% } else if (order.status === 'settled' && order.rival) { %>
-            <p>
-              Alas, the sky did otherwise (<%= order.actual.condition %>, <%= order.actual.temperatureC %>°C).
-              <strong><%= order.rival.name %></strong> had already held the chit
-              — <%= order.rival.reason %>.
-            </p>
-          <% } %>
+          <p class="lede">Filed as <%= visitor.display_name || 'unnamed' %><% if (order.reason) { %> — <%= order.reason %><% } %></p>
+          <dl class="ledger-facts">
+            <dt>Date/time requested</dt>
+            <dd><%= order.filedAtLabel %></dd>
+            <dt>Date/time for</dt>
+            <dd><%= order.slotLabel %></dd>
+            <dt>Weather requested</dt>
+            <dd><%= order.requestedWeather %></dd>
+            <dt>Actual weather</dt>
+            <dd>
+              <% if (order.verdict === 'observatory') { %>
+                <%= copy.observatory %>
+              <% } else if (order.actualWeather && order.status === 'aimed') { %>
+                <%= order.actualWeather %> (forecast)
+              <% } else if (order.actualWeather) { %>
+                <%= order.actualWeather %>
+              <% } else { %>
+                Not yet observed
+              <% } %>
+            </dd>
+            <dt>Verdict</dt>
+            <dd class="ledger-verdict">
+              <% if (order.verdict === 'accepted') { %>Accepted
+              <% } else if (order.verdict === 'denied') { %>Denied
+              <% } else if (order.verdict === 'withdrawn') { %>Withdrawn
+              <% } else if (order.verdict === 'observatory') { %>Pending
+              <% } else { %>Pending
+              <% } %>
+            </dd>
+            <% if (order.denialReason) { %>
+              <dt>Reason</dt>
+              <dd><%= order.denialReason %></dd>
+            <% } %>
+          </dl>
 
           <% if (order.canCancel) { %>
             <form method="post" action="/orders/<%= order.id %>/cancel" class="cancel-form" onsubmit="return confirm('The clerks will not be happy. Withdraw this filing?');">

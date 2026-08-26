@@ -7,6 +7,7 @@ module.exports = {
   engineEnRoute: 'The engine is already en route.',
   stampReturned: 'Your filing stamp has been returned. Do not make a habit of this.',
   matchCredit: 'A satisfactory outcome. Coincidence remains a leading theory.',
+  deniedReason: (name) => `Multiple weather requests for this parish. The weather request by ${name} was chosen instead.`,
   publicWarning: 'Your display name and reason will appear on the public board. This is entertainment only.',
   officialUse: 'Received. Indexed. Mislaid. Found behind the radiator. Indexed again.',
   officialMarks: [

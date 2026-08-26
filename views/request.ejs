@@ -1,112 +1,143 @@
 <section class="form-27b">
-  <p class="eyebrow">Meteorological requisition</p>
-  <h1>Form 27B</h1>
-  <p class="lede"><%= copy.tooSoon %> Name and reason are public.</p>
-  <p class="public-warning"><%= copy.publicWarning %></p>
+  <article class="chit">
+    <header class="chit-masthead">
+      <p class="chit-org"><%= brand.name %></p>
+      <p class="chit-ref">Form 27B · Ref. 27B–<%= String(visitor.id).padStart(4, '0') %></p>
+      <h1>Meteorological Requisition</h1>
+      <p class="chit-sub">Schedule of atmospheric filing — to be completed in ink</p>
+    </header>
 
-  <% if (error) { %>
-    <p class="form-error" role="alert"><%= error %></p>
-  <% } %>
+    <aside class="chit-notes">
+      <p><strong>Notes for the petitioner.</strong> <%= copy.tooSoon %> <%= copy.publicWarning %></p>
+    </aside>
 
-  <% if (locked) { %>
-    <p class="lede">The stamp drawer is shut until midnight, UTC. A timely cancellation returns the stamp — the clerks will not be pleased if this becomes a habit.</p>
-    <p><a class="button" href="/ledger">Consult your ledger</a></p>
-  <% } else { %>
-    <form method="post" action="/request" class="ministry-form">
-      <% if (!visitor.display_name) { %>
-        <label>
-          Call me…
-          <input name="call_me" type="text" minlength="2" maxlength="40" required value="<%= form.call_me %>">
-        </label>
-      <% } else { %>
-        <p>Filing as <strong><%= visitor.display_name %></strong>.</p>
-        <input type="hidden" name="call_me" value="<%= visitor.display_name %>">
-      <% } %>
+    <% if (error) { %>
+      <p class="form-error" role="alert"><%= error %></p>
+    <% } %>
 
-      <div class="place-field">
-        <label class="place-field-label" for="place">Parish / place</label>
-        <div class="place-field-row">
-          <input id="place" name="place" type="text" required value="<%= form.place %>">
-          <button
-            type="button"
-            class="button button-inline"
-            id="whereabouts"
-            data-denied="<%= copy.whereaboutsDenied %>"
-            data-insecure="<%= copy.whereaboutsInsecure %>"
-            data-failed="<%= copy.whereaboutsFailed %>"
-          ><%= copy.whereabouts %></button>
-        </div>
-        <p class="clerk-note" id="whereabouts-note" hidden></p>
-        <input type="hidden" name="here_lat" id="here_lat" value="<%= form.here_lat %>">
-        <input type="hidden" name="here_lon" id="here_lon" value="<%= form.here_lon %>">
-        <button type="submit" name="intent" value="here" formnovalidate hidden id="submit-here">Take a bearing</button>
-      </div>
+    <% if (locked) { %>
+      <p class="lede">The stamp drawer is shut until midnight, UTC. A timely cancellation returns the stamp — the clerks will not be pleased if this becomes a habit.</p>
+      <p><a class="button" href="/ledger">Consult your ledger</a></p>
+    <% } else { %>
+      <form method="post" action="/request" class="ministry-form chit-body">
+        <section class="chit-clause">
+          <h2>I. Petitioner</h2>
+          <label class="chit-line">
+            <span>Call me</span>
+            <input name="call_me" type="text" minlength="2" maxlength="40" required value="<%= form.call_me %>">
+          </label>
+        </section>
 
-      <% if (places) { %>
-        <fieldset>
-          <legend>The clerks found several parishes. Tick one.</legend>
-          <% places.forEach((place, index) => { %>
-            <label class="radio">
-              <input type="radio" name="place_index" value="<%= index %>" <%= index === 0 ? 'checked' : '' %>>
-              <span><%= place.label || [place.name, place.country].filter(Boolean).join(', ') %></span>
-            </label>
-          <% }) %>
-        </fieldset>
-      <% } %>
+        <section class="chit-clause">
+          <h2>II. Parish</h2>
+          <div class="chit-line place-field">
+            <label class="place-field-label" for="place">Parish or place</label>
+            <div class="place-field-row">
+              <input id="place" name="place" type="text" required value="<%= form.place %>">
+              <button
+                type="button"
+                class="bearing-mark"
+                id="whereabouts"
+                data-denied="<%= copy.whereaboutsDenied %>"
+                data-insecure="<%= copy.whereaboutsInsecure %>"
+                data-failed="<%= copy.whereaboutsFailed %>"
+              ><%= copy.whereabouts %></button>
+            </div>
+            <p class="clerk-note" id="whereabouts-note" hidden></p>
+            <input type="hidden" name="here_lat" id="here_lat" value="<%= form.here_lat %>">
+            <input type="hidden" name="here_lon" id="here_lon" value="<%= form.here_lon %>">
+            <button type="submit" name="intent" value="here" formnovalidate hidden id="submit-here">Take a bearing</button>
+          </div>
 
-      <label>
-        Date (not today; at least 24 hours hence)
-        <input name="local_date" type="date" required value="<%= form.local_date %>">
-      </label>
+          <% if (places) { %>
+            <fieldset class="x-schedule">
+              <legend>The clerks found several parishes. Tick one.</legend>
+              <% places.forEach((place, index) => { %>
+                <label class="x-choice">
+                  <input type="radio" name="place_index" value="<%= index %>" <%= index === 0 ? 'checked' : '' %>>
+                  <span class="x-box" aria-hidden="true"></span>
+                  <span><%= place.label || [place.name, place.country].filter(Boolean).join(', ') %></span>
+                </label>
+              <% }) %>
+            </fieldset>
+          <% } %>
+        </section>
 
-      <label>
-        Time of day
-        <select name="period">
-          <% PERIODS.forEach((period) => { %>
-            <option value="<%= period %>" <%= form.period === period ? 'selected' : '' %>><%= period %></option>
-          <% }) %>
-        </select>
-      </label>
+        <section class="chit-clause">
+          <h2>III. When</h2>
+          <label class="chit-line">
+            <span>Date (not today; at least 24 hours hence)</span>
+            <input name="local_date" type="date" required value="<%= form.local_date %>">
+          </label>
+          <fieldset class="x-schedule">
+            <legend>Time of day</legend>
+            <% PERIODS.forEach((period) => { %>
+              <label class="x-choice">
+                <input type="radio" name="period" value="<%= period %>" <%= form.period === period ? 'checked' : '' %>>
+                <span class="x-box" aria-hidden="true"></span>
+                <span><%= period %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+        </section>
 
-      <label>
-        Desired condition
-        <select name="condition">
-          <% CONDITIONS.forEach((condition) => { %>
-            <option value="<%= condition %>" <%= form.condition === condition ? 'selected' : '' %>><%= condition %></option>
-          <% }) %>
-        </select>
-      </label>
+        <section class="chit-clause">
+          <h2>IV. Atmospheric specification</h2>
+          <fieldset class="x-schedule">
+            <legend>Desired condition</legend>
+            <% CONDITIONS.forEach((condition) => { %>
+              <label class="x-choice">
+                <input type="radio" name="condition" value="<%= condition %>" <%= form.condition === condition ? 'checked' : '' %>>
+                <span class="x-box" aria-hidden="true"></span>
+                <span><%= condition %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+          <label class="chit-line chit-temp">
+            <span>Temperature</span>
+            <input name="temperature_c" type="number" min="-20" max="45" required value="<%= form.temperature_c %>">
+            <span class="chit-unit">°C</span>
+          </label>
+          <fieldset class="x-schedule">
+            <legend>Wind</legend>
+            <% WINDS.forEach((wind) => { %>
+              <label class="x-choice">
+                <input type="radio" name="wind" value="<%= wind %>" <%= form.wind === wind ? 'checked' : '' %>>
+                <span class="x-box" aria-hidden="true"></span>
+                <span><%= wind %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+          <fieldset class="x-schedule">
+            <legend>Humidity</legend>
+            <% HUMIDITIES.forEach((humidity) => { %>
+              <label class="x-choice">
+                <input type="radio" name="humidity" value="<%= humidity %>" <%= form.humidity === humidity ? 'checked' : '' %>>
+                <span class="x-box" aria-hidden="true"></span>
+                <span><%= humidity %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+        </section>
 
-      <label>
-        Temperature (°C)
-        <input name="temperature_c" type="number" min="-20" max="45" required value="<%= form.temperature_c %>">
-      </label>
+        <section class="chit-clause">
+          <h2>V. Grounds (public, 140 characters)</h2>
+          <label class="chit-line">
+            <span>Reason</span>
+            <input name="reason" type="text" maxlength="140" required value="<%= form.reason %>">
+          </label>
+        </section>
 
-      <label>
-        Wind
-        <select name="wind">
-          <% WINDS.forEach((wind) => { %>
-            <option value="<%= wind %>" <%= form.wind === wind ? 'selected' : '' %>><%= wind %></option>
-          <% }) %>
-        </select>
-      </label>
+        <aside class="chit-official" aria-hidden="true">
+          <p class="chit-official-label">For official use only</p>
+          <p><%= copy.officialUse %></p>
+        </aside>
 
-      <label>
-        Humidity
-        <select name="humidity">
-          <% HUMIDITIES.forEach((humidity) => { %>
-            <option value="<%= humidity %>" <%= form.humidity === humidity ? 'selected' : '' %>><%= humidity %></option>
-          <% }) %>
-        </select>
-      </label>
-
-      <label>
-        Reason (public, 140 characters)
-        <input name="reason" type="text" maxlength="140" required value="<%= form.reason %>">
-      </label>
-
-      <button class="button" type="submit">Stamp and file</button>
-    </form>
-    <script src="/js/form-27b.js" defer></script>
-  <% } %>
+        <p class="chit-stamp">
+          <button class="button" type="submit">Stamp and file</button>
+        </p>
+      </form>
+      <script src="/js/form-27b.js" defer></script>
+    <% } %>
+  </article>
 </section>

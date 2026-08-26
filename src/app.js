@@ -83,27 +83,30 @@ function createApp({ db, now, weather }) {
       locked,
       error: locked ? copy.alreadyFiled : null,
       places: null,
-      form: formState()
+      form: formState({ call_me: visitor.display_name || '' })
     });
   });
 
   app.post('/request', async (req, res) => {
     const body = req.body;
     let visitor = loadVisitor(db, req.visitor.id);
-    const form = formState(body);
+    const form = formState({
+      ...body,
+      call_me: body.call_me || visitor.display_name || ''
+    });
 
-    if (!visitor.display_name) {
-      const name = typeof body.call_me === 'string' ? body.call_me.trim() : '';
-      if (name.length < 2 || name.length > 40) {
-        return res.status(200).render('layout', {
-          page: 'request',
-          visitor,
-          locked: false,
-          error: 'The clerks require a name of two to forty letters.',
-          places: null,
-          form
-        });
-      }
+    const name = typeof body.call_me === 'string' ? body.call_me.trim() : '';
+    if (name.length < 2 || name.length > 40) {
+      return res.status(200).render('layout', {
+        page: 'request',
+        visitor,
+        locked: false,
+        error: 'The clerks require a name of two to forty letters.',
+        places: null,
+        form
+      });
+    }
+    if (name !== visitor.display_name) {
       db.prepare('UPDATE visitors SET display_name = ? WHERE id = ?').run(name, visitor.id);
       visitor = loadVisitor(db, visitor.id);
     }

@@ -690,6 +690,228 @@ h1 {
   max-width: 36rem;
 }
 
+.form-27b {
+  max-width: 46rem;
+}
+
+.form-27b h1 {
+  max-width: none;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.chit {
+  padding: 1.5rem 1.35rem 1.75rem;
+  border: 3px double #281b12;
+  background: #f4ead3;
+  box-shadow: 0.45rem 0.55rem 0 rgb(78 48 29 / 18%);
+}
+
+.chit-masthead {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 2px solid #281b12;
+  text-align: center;
+}
+
+.chit-org,
+.chit-ref,
+.chit-sub {
+  margin: 0;
+}
+
+.chit-org {
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.chit-ref {
+  font-size: 0.8rem;
+}
+
+.chit-sub {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.chit-notes {
+  margin: 0.85rem 0 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #9f7d50;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.chit-body {
+  max-width: none;
+  gap: 0;
+}
+
+.chit-clause {
+  margin: 0;
+  padding: 0.9rem 0;
+  border-bottom: 1px dashed #9f7d50;
+}
+
+.chit-clause h2 {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chit-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.7rem;
+}
+
+.ministry-form .chit-line {
+  display: flex;
+}
+
+.chit-line > span:first-child,
+.place-field-label {
+  flex: 0 0 auto;
+  font-size: 0.9rem;
+}
+
+.ministry-form.chit-body input[type="text"],
+.ministry-form.chit-body input[type="date"],
+.ministry-form.chit-body input[type="number"] {
+  flex: 1;
+  min-width: 7rem;
+  padding: 0.2rem 0.1rem 0.15rem;
+  border: 0;
+  border-bottom: 1px dotted #281b12;
+  border-radius: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+}
+
+.ministry-form.chit-body input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.chit-temp .chit-unit {
+  flex: 0 0 auto;
+}
+
+.x-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.ministry-form .x-schedule {
+  display: flex;
+}
+
+.x-schedule legend {
+  padding: 0;
+  font-size: 0.9rem;
+}
+
+.x-choice {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  margin: 0;
+  cursor: pointer;
+}
+
+.ministry-form label.x-choice {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 0.4rem;
+}
+
+.x-choice input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.x-box {
+  display: inline-grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1.5px solid #281b12;
+  background: #f7edd6;
+  flex-shrink: 0;
+}
+
+.x-choice input:checked + .x-box::after {
+  content: 'X';
+  color: #8b1e1e;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.x-choice input:focus-visible + .x-box {
+  outline: 2px solid #8b1e1e;
+  outline-offset: 2px;
+}
+
+.bearing-mark {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #8b1e1e;
+  background: none;
+  box-shadow: none;
+  color: #8b1e1e;
+  font: inherit;
+  font-size: 0.82rem;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chit-official {
+  margin-top: 1rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #281b12;
+  background: repeating-linear-gradient(-45deg, #ead9b7 0 6px, #e2d2ad 6px 12px);
+  pointer-events: none;
+}
+
+.chit-official-label {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.chit-official p {
+  margin: 0;
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+.chit-stamp {
+  margin: 1.25rem 0 0;
+  text-align: center;
+}
+
 .ministry-form label,
 .ministry-form fieldset {
   display: grid;
@@ -713,6 +935,16 @@ h1 {
   background: none;
   flex-shrink: 0;
   accent-color: #6b4423;
+}
+
+.ministry-form .x-choice input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .place-field,
@@ -806,9 +1038,9 @@ footer {
     flex-wrap: wrap;
   }
 
-  .place-field-row .button-inline {
+  .place-field-row .bearing-mark {
     width: 100%;
-    text-align: center;
+    text-align: left;
   }
 
   .weather-machine,

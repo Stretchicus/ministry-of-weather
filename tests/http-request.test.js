@@ -94,10 +94,11 @@ test('place picker keeps the display name on the next stamp', async () => {
   });
   assert.equal(pick.status, 200);
   assert.match(pick.text, /Tick one/);
-  assert.match(pick.text, /Filing as/);
   assert.match(pick.text, /name="call_me"/);
   assert.match(pick.text, /value="Darren G"/);
+  assert.doesNotMatch(pick.text, /Filing as/);
   const filed = await agent.post('/request').type('form').send({
+    call_me: 'Darren G',
     place: 'Croydon',
     place_index: '1',
     local_date: '2026-08-26',
@@ -222,5 +223,73 @@ test('stamping with a bearing files the standing parish', async () => {
   assert.equal(reverseCalls, 1);
   const ledger = await agent.get('/ledger');
   assert.match(ledger.text, /Stafford/);
+  db.close();
+});
+
+test('form 27B keeps the name line editable', async () => {
+  const { db, app } = appWithGeo();
+  const agent = request.agent(app);
+  await agent.get('/');
+  db.prepare('UPDATE visitors SET display_name = ?').run('Darren G');
+  const res = await agent.get('/request');
+  assert.equal(res.status, 200);
+  assert.match(res.text, /name="call_me"/);
+  assert.match(res.text, /value="Darren G"/);
+  assert.doesNotMatch(res.text, /type="hidden"[^>]*name="call_me"/);
+  assert.doesNotMatch(res.text, /Filing as/);
+  db.close();
+});
+
+test('a later filing may amend the petitioner name', async () => {
+  const { db, app } = appWithGeo({
+    geocode: async () => [
+      { name: 'Croydon', country: 'United Kingdom', label: 'Croydon, England, United Kingdom', latitude: 51.376, longitude: -0.098, timezone: 'UTC' },
+      { name: 'Croydon', country: 'Australia', label: 'Croydon, Victoria, Australia', latitude: -33.883, longitude: 151.1, timezone: 'Australia/Sydney' }
+    ]
+  });
+  const agent = request.agent(app);
+  await agent.get('/');
+  await agent.post('/request').type('form').send({
+    call_me: 'Darren G',
+    place: 'Croydon',
+    local_date: '2026-08-26',
+    period: 'afternoon',
+    condition: 'drizzle',
+    temperature_c: '14',
+    wind: 'calm',
+    humidity: 'pleasant',
+    reason: 'a wedding'
+  });
+  const filed = await agent.post('/request').type('form').send({
+    call_me: 'Mildred P',
+    place: 'Croydon',
+    place_index: '1',
+    local_date: '2026-08-26',
+    period: 'afternoon',
+    condition: 'drizzle',
+    temperature_c: '14',
+    wind: 'calm',
+    humidity: 'pleasant',
+    reason: 'a wedding'
+  });
+  assert.equal(filed.status, 302);
+  const visitor = db.prepare('SELECT display_name FROM visitors').get();
+  assert.equal(visitor.display_name, 'Mildred P');
+  const ledger = await agent.get('/ledger');
+  assert.match(ledger.text, /Mildred P/);
+  db.close();
+});
+
+test('form 27B is a departmental schedule not a stack of selects', async () => {
+  const { db, app } = appWithGeo();
+  const agent = request.agent(app);
+  await agent.get('/');
+  const res = await agent.get('/request');
+  assert.match(res.text, /Meteorological Requisition/i);
+  assert.match(res.text, /For official use/i);
+  assert.match(res.text, /type="radio"/);
+  assert.match(res.text, /name="period"/);
+  assert.match(res.text, /name="condition"/);
+  assert.doesNotMatch(res.text, /<select\b/i);
   db.close();
 });

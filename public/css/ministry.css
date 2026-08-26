@@ -48,12 +48,17 @@ a {
 main,
 footer {
   position: relative;
-  z-index: 1;
   width: min(68rem, calc(100% - 2rem));
   margin-inline: auto;
 }
 
+main,
+footer {
+  z-index: 1;
+}
+
 .site-header {
+  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: space-between;

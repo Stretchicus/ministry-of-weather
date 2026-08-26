@@ -9,6 +9,13 @@ module.exports = {
   matchCredit: 'A satisfactory outcome. Coincidence remains a leading theory.',
   publicWarning: 'Your display name and reason will appear on the public board. This is entertainment only.',
   officialUse: 'Received. Indexed. Mislaid. Found behind the radiator. Indexed again.',
+  officialMarks: [
+    'Received',
+    'Indexed',
+    'Mislaid',
+    'Found behind the radiator',
+    'Indexed again'
+  ],
   whereabouts: 'I am standing here',
   whereaboutsDenied: 'Your device declined to confess its location.',
   whereaboutsInsecure: 'The clerks can only take a bearing over a secure connection.',

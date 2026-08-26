@@ -287,6 +287,8 @@ test('form 27B is a departmental schedule not a stack of selects', async () => {
   const res = await agent.get('/request');
   assert.match(res.text, /Meteorological Requisition/i);
   assert.match(res.text, /For official use/i);
+  assert.match(res.text, /Found behind the radiator/);
+  assert.doesNotMatch(res.text, /name="official/);
   assert.match(res.text, /type="radio"/);
   assert.match(res.text, /name="period"/);
   assert.match(res.text, /name="condition"/);

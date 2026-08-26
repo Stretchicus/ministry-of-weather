@@ -55,8 +55,8 @@
               <% places.forEach((place, index) => { %>
                 <label class="x-choice">
                   <input type="radio" name="place_index" value="<%= index %>" <%= index === 0 ? 'checked' : '' %>>
+                  <span class="x-choice-text"><%= place.label || [place.name, place.country].filter(Boolean).join(', ') %></span>
                   <span class="x-box" aria-hidden="true"></span>
-                  <span><%= place.label || [place.name, place.country].filter(Boolean).join(', ') %></span>
                 </label>
               <% }) %>
             </fieldset>
@@ -74,8 +74,8 @@
             <% PERIODS.forEach((period) => { %>
               <label class="x-choice">
                 <input type="radio" name="period" value="<%= period %>" <%= form.period === period ? 'checked' : '' %>>
+                <span class="x-choice-text"><%= period %></span>
                 <span class="x-box" aria-hidden="true"></span>
-                <span><%= period %></span>
               </label>
             <% }) %>
           </fieldset>
@@ -88,8 +88,8 @@
             <% CONDITIONS.forEach((condition) => { %>
               <label class="x-choice">
                 <input type="radio" name="condition" value="<%= condition %>" <%= form.condition === condition ? 'checked' : '' %>>
+                <span class="x-choice-text"><%= condition %></span>
                 <span class="x-box" aria-hidden="true"></span>
-                <span><%= condition %></span>
               </label>
             <% }) %>
           </fieldset>
@@ -103,8 +103,8 @@
             <% WINDS.forEach((wind) => { %>
               <label class="x-choice">
                 <input type="radio" name="wind" value="<%= wind %>" <%= form.wind === wind ? 'checked' : '' %>>
+                <span class="x-choice-text"><%= wind %></span>
                 <span class="x-box" aria-hidden="true"></span>
-                <span><%= wind %></span>
               </label>
             <% }) %>
           </fieldset>
@@ -113,8 +113,8 @@
             <% HUMIDITIES.forEach((humidity) => { %>
               <label class="x-choice">
                 <input type="radio" name="humidity" value="<%= humidity %>" <%= form.humidity === humidity ? 'checked' : '' %>>
+                <span class="x-choice-text"><%= humidity %></span>
                 <span class="x-box" aria-hidden="true"></span>
-                <span><%= humidity %></span>
               </label>
             <% }) %>
           </fieldset>
@@ -130,7 +130,14 @@
 
         <aside class="chit-official" aria-hidden="true">
           <p class="chit-official-label">For official use only</p>
-          <p><%= copy.officialUse %></p>
+          <div class="x-schedule x-schedule-inert">
+            <% copy.officialMarks.forEach((mark) => { %>
+              <span class="x-choice">
+                <span class="x-choice-text"><%= mark %></span>
+                <span class="x-box"></span>
+              </span>
+            <% }) %>
+          </div>
         </aside>
 
         <p class="chit-stamp">

@@ -808,7 +808,7 @@ h1 {
 .x-schedule {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.2rem 0.9rem;
+  gap: 0.35rem 0;
   margin: 0.45rem 0 0;
   padding: 0;
   border: 0;
@@ -827,16 +827,27 @@ h1 {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   min-height: 2.5rem;
   margin: 0;
+  padding: 0 0.85rem 0 0;
+  border-right: 1px dotted #9f7d50;
   cursor: pointer;
+}
+
+.x-choice:last-child {
+  padding-right: 0;
+  border-right: 0;
 }
 
 .ministry-form label.x-choice {
   display: inline-flex;
   flex-direction: row;
-  gap: 0.4rem;
+  gap: 0.35rem;
+}
+
+.x-choice-text {
+  font-size: 0.95rem;
 }
 
 .x-choice input {
@@ -858,7 +869,7 @@ h1 {
   flex-shrink: 0;
 }
 
-.x-choice input:checked + .x-box::after {
+.x-choice input:checked ~ .x-box::after {
   content: 'X';
   color: #8b1e1e;
   font-weight: 700;
@@ -866,7 +877,7 @@ h1 {
   line-height: 1;
 }
 
-.x-choice input:focus-visible + .x-box {
+.x-choice input:focus-visible ~ .x-box {
   outline: 2px solid #8b1e1e;
   outline-offset: 2px;
 }
@@ -892,6 +903,15 @@ h1 {
   border: 1px solid #281b12;
   background: repeating-linear-gradient(-45deg, #ead9b7 0 6px, #e2d2ad 6px 12px);
   pointer-events: none;
+}
+
+.chit-official .x-choice {
+  cursor: default;
+  min-height: 2rem;
+}
+
+.x-schedule-inert {
+  margin-top: 0.25rem;
 }
 
 .chit-official-label {

@@ -15,7 +15,28 @@
       </a>
       <nav aria-label="Main navigation">
         <a href="/"><%= brand.nav.home %></a>
-        <a href="/request"><%= brand.nav.file %></a>
+        <details class="forms-menu">
+          <summary><%= brand.nav.file %></summary>
+          <div class="forms-panel">
+            <p class="forms-heading">Frequent forms</p>
+            <% forms.frequent.forEach((form) => { %>
+              <a class="forms-item" href="<%= form.href %>"><%= form.label %></a>
+            <% }) %>
+            <p class="forms-heading">Other schedules</p>
+            <% forms.other.forEach((form) => { %>
+              <button
+                type="button"
+                class="forms-item forms-restricted"
+                data-code="<%= form.code %>"
+                data-name="<%= form.name %>"
+                data-refusal="<%= form.refusal %>"
+              >
+                <span class="forms-code"><%= form.code %></span>
+                <span class="forms-name"><%= form.name %></span>
+              </button>
+            <% }) %>
+          </div>
+        </details>
         <a href="/ledger"><%= brand.nav.ledger %></a>
       </nav>
     </header>
@@ -23,5 +44,14 @@
       <%- include(page) %>
     </main>
     <footer><%= brand.footer %></footer>
+    <dialog class="privilege-slip" id="privilege-slip" aria-labelledby="privilege-title">
+      <p class="eyebrow" id="privilege-title">Insufficient privileges</p>
+      <p class="privilege-form"></p>
+      <p class="privilege-copy"></p>
+      <form method="dialog">
+        <button class="button" type="submit">Very well</button>
+      </form>
+    </dialog>
+    <script src="/js/forms-menu.js" defer></script>
   </body>
 </html>

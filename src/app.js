@@ -3,6 +3,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const brand = require('../config/brand');
 const copy = require('../config/copy');
+const forms = require('../config/forms');
 const { CONDITIONS, WINDS, HUMIDITIES } = require('../config/weather');
 const { PERIODS } = require('./lib/time');
 const { buildBoard } = require('./lib/board');
@@ -58,6 +59,7 @@ function createApp({ db, now, weather }) {
   app.set('views', path.join(__dirname, '..', 'views'));
   app.locals.brand = brand;
   app.locals.copy = copy;
+  app.locals.forms = forms;
   app.locals.weather = weather;
   app.locals.CONDITIONS = CONDITIONS;
   app.locals.WINDS = WINDS;

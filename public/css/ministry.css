@@ -89,7 +89,99 @@ h1 {
 nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 1rem;
+}
+
+.forms-menu {
+  position: relative;
+}
+
+.forms-menu summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.forms-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.forms-menu summary::after {
+  content: ' ▾';
+  font-size: 0.8em;
+}
+
+.forms-panel {
+  position: absolute;
+  z-index: 6;
+  top: calc(100% + 0.45rem);
+  right: 0;
+  width: min(22rem, calc(100vw - 2rem));
+  padding: 0.75rem 0.85rem 0.9rem;
+  border: 3px double #281b12;
+  background: #f4ead3;
+  box-shadow: 0.3rem 0.35rem 0 rgb(78 48 29 / 18%);
+}
+
+.forms-heading {
+  margin: 0.6rem 0 0.3rem;
+  color: #6b4423;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.forms-heading:first-child {
+  margin-top: 0;
+}
+
+.forms-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.4rem 0.15rem;
+  border: 0;
+  border-bottom: 1px dotted #9f7d50;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forms-item:last-child {
+  border-bottom: 0;
+}
+
+.forms-code {
+  flex: 0 0 2.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+.privilege-slip {
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 1.25rem 1.35rem 1.4rem;
+  border: 3px double #8b1e1e;
+  background: #f3d7c4;
+  color: inherit;
+}
+
+.privilege-slip::backdrop {
+  background: rgb(40 27 18 / 45%);
+}
+
+.privilege-form {
+  margin: 0.35rem 0 0.75rem;
+  font-weight: 700;
+}
+
+.privilege-copy {
+  margin: 0 0 1rem;
+  line-height: 1.45;
 }
 
 main {

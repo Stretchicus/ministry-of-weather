@@ -1,12 +1,12 @@
 (function () {
   const form = document.querySelector('.ministry-form');
   const button = document.getElementById('whereabouts');
-  const submitHere = document.getElementById('submit-here');
+  const intent = document.getElementById('form-intent');
   const lat = document.getElementById('here_lat');
   const lon = document.getElementById('here_lon');
   const place = document.getElementById('place');
   const note = document.getElementById('whereabouts-note');
-  if (!form || !button || !submitHere || !lat || !lon) return;
+  if (!form || !button || !intent || !lat || !lon) return;
 
   function say(message) {
     if (!note) return;
@@ -41,7 +41,9 @@
       (position) => {
         lat.value = String(position.coords.latitude);
         lon.value = String(position.coords.longitude);
-        submitHere.click();
+        intent.value = 'here';
+        form.noValidate = true;
+        form.requestSubmit();
       },
       () => {
         button.disabled = false;

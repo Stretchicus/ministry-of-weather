@@ -149,6 +149,8 @@ test('form 27B offers to take a bearing', async () => {
   assert.match(res.text, /I am standing here/);
   assert.match(res.text, /name="here_lat"/);
   assert.match(res.text, /name="here_lon"/);
+  assert.doesNotMatch(res.text, /type="submit"[^>]*name="intent"/);
+  assert.doesNotMatch(res.text, /name="intent"[^>]*type="submit"/);
   db.close();
 });
 

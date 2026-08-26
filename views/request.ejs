@@ -46,7 +46,7 @@
             <p class="clerk-note" id="whereabouts-note" hidden></p>
             <input type="hidden" name="here_lat" id="here_lat" value="<%= form.here_lat %>">
             <input type="hidden" name="here_lon" id="here_lon" value="<%= form.here_lon %>">
-            <button type="submit" name="intent" value="here" formnovalidate hidden id="submit-here">Take a bearing</button>
+            <input type="hidden" name="intent" id="form-intent" value="">
           </div>
 
           <% if (places) { %>

@@ -102,26 +102,40 @@ nav {
   position: relative;
 }
 
-.forms-menu summary {
+.forms-toggle {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.1rem 0.15rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
-  list-style: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.forms-menu summary::-webkit-details-marker {
-  display: none;
-}
-
-.forms-menu summary::after {
+.forms-toggle::after {
   content: ' ▾';
   font-size: 0.8em;
 }
 
+.forms-panel[hidden] {
+  display: none !important;
+}
+
 .forms-panel {
-  position: absolute;
-  z-index: 6;
-  top: calc(100% + 0.45rem);
-  right: 0;
+  position: fixed;
+  z-index: 20;
+  top: 5.5rem;
+  right: 1rem;
   width: min(22rem, calc(100vw - 2rem));
+  max-height: min(24rem, calc(100dvh - 6.5rem));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 0.75rem 0.85rem 0.9rem;
   border: 3px double #281b12;
   background: #f4ead3;
@@ -142,9 +156,10 @@ nav {
 
 .forms-item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.55rem;
   width: 100%;
+  min-height: 2.75rem;
   margin: 0;
   padding: 0.4rem 0.15rem;
   border: 0;
@@ -155,6 +170,7 @@ nav {
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .forms-item:last-child {
@@ -1202,6 +1218,13 @@ footer {
   .place-field-row .bearing-mark {
     width: 100%;
     text-align: left;
+  }
+
+  .forms-panel {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    max-height: min(70dvh, calc(100dvh - 6.5rem));
   }
 
   .weather-machine,

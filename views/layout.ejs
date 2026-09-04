@@ -15,9 +15,11 @@
       </a>
       <nav aria-label="Main navigation">
         <a href="/"><%= brand.nav.home %></a>
-        <details class="forms-menu">
-          <summary><%= brand.nav.file %></summary>
-          <div class="forms-panel">
+        <div class="forms-menu">
+          <button type="button" class="forms-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="forms-panel">
+            <%= brand.nav.file %>
+          </button>
+          <div class="forms-panel" id="forms-panel" hidden>
             <p class="forms-heading">Frequent forms</p>
             <% forms.frequent.forEach((form) => { %>
               <a class="forms-item" href="<%= form.href %>">
@@ -39,7 +41,7 @@
               </button>
             <% }) %>
           </div>
-        </details>
+        </div>
         <a href="/ledger"><%= brand.nav.ledger %></a>
       </nav>
     </header>

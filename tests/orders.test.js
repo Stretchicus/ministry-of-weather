@@ -5,7 +5,8 @@ const {
   fileOrder,
   cancelOrder,
   hasActiveFilingToday,
-  clerkCopy
+  clerkCopy,
+  hydrateOrder
 } = require('../src/lib/orders');
 
 function seedVisitor(db, token = 't', displayName = 'Darren G') {
@@ -190,5 +191,116 @@ test('cancel count increments and clerk copy escalates', () => {
   assert.match(clerkCopy(3), /petition/i);
   assert.equal(clerkCopy(4), clerkCopy(3));
   assert.equal(db.prepare(`SELECT cancel_count FROM visitors WHERE id = ?`).get(visitor.id).cancel_count, 3);
+  db.close();
+});
+
+function insertSettledOrder(db, visitorId, knobs) {
+  const result = db.prepare(`
+    INSERT INTO orders (
+      visitor_id, place_name, latitude, longitude, timezone, local_date,
+      period, condition, temperature_c, wind, humidity, reason, created_at
+    ) VALUES (?, 'Croydon', 51.376, -0.098, 'UTC', '2026-08-20', 'morning', ?, ?, ?, ?, 'a picnic', '2026-08-01T12:00:00.000Z')
+  `).run(visitorId, knobs.condition, knobs.temperatureC, knobs.wind, knobs.humidity);
+  return db.prepare(`SELECT * FROM orders WHERE id = ?`).get(result.lastInsertRowid);
+}
+
+test('first settled mismatch freezes rival and actual weather', async () => {
+  const db = openDb(':memory:');
+  const visitor = seedVisitor(db);
+  const order = insertSettledOrder(db, visitor.id, {
+    condition: 'sun', temperatureC: 22, wind: 'calm', humidity: 'dry'
+  });
+  let archiveCalls = 0;
+  const weather = {
+    archiveSlice: async () => {
+      archiveCalls += 1;
+      return { temperatureC: 8, condition: 'rain', wind: 'gale', humidity: 'muggy' };
+    }
+  };
+  const now = new Date('2026-08-24T12:00:00Z');
+  const first = await hydrateOrder(order, { db, weather, now });
+  assert.equal(first.verdict, 'denied');
+  assert.equal(first.outcome, 'denied');
+  assert.equal(first.actualWeather, 'rain, 8°C, gale, muggy');
+  assert.ok(first.rival.name);
+  assert.ok(first.rival.reason);
+  const row = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(order.id);
+  assert.equal(row.outcome, 'denied');
+  assert.equal(row.rival_name, first.rival.name);
+  assert.equal(row.rival_reason, first.rival.reason);
+
+  const weather2 = {
+    archiveSlice: async () => {
+      archiveCalls += 1;
+      return { temperatureC: 1, condition: 'snow', wind: 'calm', humidity: 'dry' };
+    }
+  };
+  const frozen = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(order.id);
+  const second = await hydrateOrder(frozen, { db, weather: weather2, now });
+  assert.equal(archiveCalls, 1);
+  assert.equal(second.verdict, 'denied');
+  assert.equal(second.rival.name, first.rival.name);
+  assert.equal(second.actualWeather, 'rain, 8°C, gale, muggy');
+  db.close();
+});
+
+test('first settled match freezes actual weather without a rival', async () => {
+  const db = openDb(':memory:');
+  const visitor = seedVisitor(db);
+  const order = insertSettledOrder(db, visitor.id, {
+    condition: 'sun', temperatureC: 22, wind: 'calm', humidity: 'dry'
+  });
+  let archiveCalls = 0;
+  const weather = {
+    archiveSlice: async () => {
+      archiveCalls += 1;
+      return { temperatureC: 22, condition: 'sun', wind: 'calm', humidity: 'dry' };
+    }
+  };
+  const now = new Date('2026-08-24T12:00:00Z');
+  const first = await hydrateOrder(order, { db, weather, now });
+  assert.equal(first.verdict, 'accepted');
+  assert.equal(first.outcome, 'accepted');
+  assert.equal(first.rival, null);
+  const row = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(order.id);
+  assert.equal(row.outcome, 'accepted');
+  assert.equal(row.rival_name, null);
+  const weather2 = {
+    archiveSlice: async () => {
+      archiveCalls += 1;
+      return { temperatureC: 0, condition: 'fog', wind: 'gale', humidity: 'muggy' };
+    }
+  };
+  const frozen = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(order.id);
+  const second = await hydrateOrder(frozen, { db, weather: weather2, now });
+  assert.equal(archiveCalls, 1);
+  assert.equal(second.verdict, 'accepted');
+  assert.equal(second.actualWeather, 'sun, 22°C, calm, dry');
+  db.close();
+});
+
+test('observatory on first settled load leaves the snapshot empty', async () => {
+  const db = openDb(':memory:');
+  const visitor = seedVisitor(db);
+  const order = insertSettledOrder(db, visitor.id, {
+    condition: 'sun', temperatureC: 22, wind: 'calm', humidity: 'dry'
+  });
+  const first = await hydrateOrder(order, {
+    db,
+    weather: { archiveSlice: async () => null },
+    now: new Date('2026-08-24T12:00:00Z')
+  });
+  assert.equal(first.verdict, 'observatory');
+  const row = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(order.id);
+  assert.equal(row.outcome, null);
+  const second = await hydrateOrder(row, {
+    db,
+    weather: {
+      archiveSlice: async () => ({ temperatureC: 22, condition: 'sun', wind: 'calm', humidity: 'dry' })
+    },
+    now: new Date('2026-08-24T12:00:00Z')
+  });
+  assert.equal(second.verdict, 'accepted');
+  assert.equal(db.prepare(`SELECT outcome FROM orders WHERE id = ?`).get(order.id).outcome, 'accepted');
   db.close();
 });

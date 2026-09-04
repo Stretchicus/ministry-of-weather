@@ -25,4 +25,18 @@ function theatreFiler({ cityId, localDate, condition }) {
   return { name: pick(seed, names), reason: pick(Math.floor(seed / names.length), pool) };
 }
 
-module.exports = { roundCoord, rivalForSlot, theatreFiler };
+function theatreRequestedWeather({ cityId, localDate, actual }) {
+  const seed = seedInt(`${cityId}|${localDate}`);
+  const offset = (seed % 7) - 3;
+  let temperatureC = actual.temperatureC + offset;
+  if (temperatureC < -20) temperatureC = -20;
+  if (temperatureC > 45) temperatureC = 45;
+  return {
+    condition: actual.condition,
+    temperatureC,
+    wind: actual.wind,
+    humidity: actual.humidity
+  };
+}
+
+module.exports = { roundCoord, rivalForSlot, theatreFiler, theatreRequestedWeather, seedInt };

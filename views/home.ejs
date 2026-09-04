@@ -59,13 +59,15 @@
     <p class="eyebrow">Public notices, duly stamped</p>
     <h2 id="board-title">The weather request board</h2>
     <div class="notice-grid">
-      <% for (const card of [...board.theatre, ...board.real]) { %>
-        <article class="notice-card notice-<%= card.kind %><%= card.stamped ? ' notice-stamped' : '' %>">
-          <p class="notice-kind"><%= card.kind === 'theatre' ? 'Current atmospheric chit' : 'Filed request' %></p>
+      <% for (const card of board.cards) { %>
+        <article class="notice-card notice-stamped">
           <h3><%= card.place %></h3>
-          <% if (card.temperatureC !== null) { %>
-            <p class="notice-weather"><strong><%= card.temperatureC %>°C</strong> · <%= card.condition %></p>
-          <% } %>
+          <dl class="notice-facts">
+            <dt>Weather requested</dt>
+            <dd><%= card.requestedWeather %></dd>
+            <dt>Actual weather</dt>
+            <dd><%= card.actualWeather %></dd>
+          </dl>
           <p><%= card.reason %></p>
           <p class="notice-filer">Filed by <strong><%= card.name || 'an unnamed petitioner' %></strong></p>
         </article>

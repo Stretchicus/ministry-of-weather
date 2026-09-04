@@ -1,5 +1,5 @@
 const { CONDITIONS, WINDS, HUMIDITIES } = require('../../config/weather');
-const { cancelClerks, matchCredit, deniedReason } = require('../../config/copy');
+const { cancelClerks, deniedReason } = require('../../config/copy');
 const { isMatch } = require('./slice');
 const { rivalForSlot } = require('./rival');
 const {
@@ -126,7 +126,52 @@ function listOrdersForVisitor(db, visitorId) {
   `).all(visitorId);
 }
 
-async function hydrateOrder(order, { weather, now }) {
+function applyFrozenSnapshot(view, order) {
+  const actual = {
+    condition: order.actual_condition,
+    temperatureC: order.actual_temperature_c,
+    wind: order.actual_wind,
+    humidity: order.actual_humidity
+  };
+  view.actual = actual;
+  view.actualWeather = formatWeatherLine(actual);
+  view.outcome = order.outcome;
+  if (order.outcome === 'accepted') {
+    view.verdict = 'accepted';
+    view.rival = null;
+    return;
+  }
+  view.rival = { name: order.rival_name, reason: order.rival_reason };
+  view.verdict = 'denied';
+  view.denialReason = deniedReason(order.rival_name);
+}
+
+function freezeSettlement(db, order, now, { actual, outcome, rival }) {
+  db.prepare(`
+    UPDATE orders SET
+      outcome = ?,
+      actual_condition = ?,
+      actual_temperature_c = ?,
+      actual_wind = ?,
+      actual_humidity = ?,
+      rival_name = ?,
+      rival_reason = ?,
+      settled_recorded_at = ?
+    WHERE id = ?
+  `).run(
+    outcome,
+    actual.condition,
+    actual.temperatureC,
+    actual.wind,
+    actual.humidity,
+    rival ? rival.name : null,
+    rival ? rival.reason : null,
+    now.toISOString(),
+    order.id
+  );
+}
+
+async function hydrateOrder(order, { db, weather, now }) {
   const status = deriveStatus({
     localDate: order.local_date,
     period: order.period,
@@ -161,6 +206,10 @@ async function hydrateOrder(order, { weather, now }) {
     return view;
   }
   if (status === 'queued') return view;
+  if (status === 'settled' && (order.outcome === 'accepted' || order.outcome === 'denied')) {
+    applyFrozenSnapshot(view, order);
+    return view;
+  }
 
   const sliceArgs = {
     latitude: order.latitude,
@@ -191,9 +240,10 @@ async function hydrateOrder(order, { weather, now }) {
     humidity: order.humidity
   };
   if (isMatch(requested, actual)) {
-    view.outcome = matchCredit;
+    view.outcome = 'accepted';
     view.verdict = 'accepted';
   } else {
+    view.outcome = 'denied';
     view.rival = rivalForSlot({
       latitude: order.latitude,
       longitude: order.longitude,
@@ -204,6 +254,11 @@ async function hydrateOrder(order, { weather, now }) {
     view.verdict = 'denied';
     view.denialReason = deniedReason(view.rival.name);
   }
+  freezeSettlement(db, order, now, {
+    actual,
+    outcome: view.outcome,
+    rival: view.rival
+  });
   return view;
 }
 

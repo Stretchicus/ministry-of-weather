@@ -21,6 +21,8 @@ test('home sets a visitor cookie and shows the disclaimer', async () => {
   assert.match(res.text, /aria-haspopup="true"/);
   assert.doesNotMatch(res.text, /<details class="forms-menu">/);
   assert.doesNotMatch(res.text, />File 27B</);
+  assert.doesNotMatch(res.text, /Current atmospheric chit/);
+  assert.doesNotMatch(res.text, /Filed request/);
   const cookie = cookieHeader(res);
   assert.match(cookie, /ministry_visitor=/);
   assert.match(cookie, /HttpOnly/i);
@@ -44,4 +46,25 @@ test('visitor cookie is Secure only when the request is HTTPS', async () => {
     if (prev === undefined) delete process.env.NODE_ENV;
     else process.env.NODE_ENV = prev;
   }
+});
+
+test('home board shows requested and actual weather on mixed chits', async () => {
+  const db = openDb(':memory:');
+  const app = createApp({
+    db,
+    now: () => new Date('2026-08-24T15:00:00Z'),
+    weather: {
+      currentForCity: async () => ({ temperatureC: 14, condition: 'drizzle', wind: 'calm', humidity: 'pleasant' }),
+      archiveSlice: async () => null,
+      forecastSlice: async () => null
+    }
+  });
+  const res = await request(app).get('/');
+  assert.equal(res.status, 200);
+  assert.match(res.text, /Weather requested/);
+  assert.match(res.text, /Actual weather/);
+  assert.match(res.text, /drizzle, 14°C/);
+  assert.doesNotMatch(res.text, /Current atmospheric chit/);
+  assert.doesNotMatch(res.text, /Filed request/);
+  db.close();
 });

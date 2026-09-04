@@ -648,21 +648,31 @@ h1 {
   font-size: 1.7rem;
 }
 
-.notice-kind,
 .notice-filer {
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.notice-kind {
-  margin: 0;
-  color: #6b4423;
-}
-
-.notice-weather {
+.notice-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.75rem;
+  margin: 0 0 0.75rem;
   padding-block: 0.65rem;
   border-block: 1px dashed #9f7d50;
+}
+
+.notice-facts dt {
+  margin: 0;
+  color: #6b4423;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.notice-facts dd {
+  margin: 0;
 }
 
 .notice-filer {

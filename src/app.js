@@ -218,7 +218,7 @@ function createApp({ db, now, weather }) {
     const rows = listOrdersForVisitor(db, visitor.id);
     const orders = [];
     for (const order of rows) {
-      orders.push(await hydrateOrder(order, { weather, now: now() }));
+      orders.push(await hydrateOrder(order, { db, weather, now: now() }));
     }
     res.render('layout', {
       page: 'ledger',

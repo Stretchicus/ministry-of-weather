@@ -12,3 +12,18 @@ test('invented pool is fifty names, half with an initial', () => {
     assert.ok(name.length >= 2);
   }
 });
+
+test('invented reasons are why someone wanted that weather', () => {
+  const { reasons } = require('../config/rivals');
+  const conditions = ['sun', 'rain', 'snow', 'drizzle', 'fog', 'storm'];
+  assert.deepEqual(Object.keys(reasons).sort(), [...conditions].sort());
+  for (const condition of conditions) {
+    const pool = reasons[condition];
+    assert.ok(pool.length >= 12, condition);
+    assert.equal(new Set(pool).size, pool.length);
+    for (const reason of pool) {
+      assert.ok(reason.length >= 8 && reason.length <= 140);
+      assert.doesNotMatch(reason, /celestial committee|complied, reluctantly|subcommittee|no further action required/i);
+    }
+  }
+});

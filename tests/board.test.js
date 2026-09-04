@@ -54,6 +54,21 @@ test('board pads with fake chits to at least six and is stable for a UTC date', 
   db.close();
 });
 
+test('fake chits on one board do not repeat a name or reason', async () => {
+  const db = openDb(':memory:');
+  const board = await buildBoard({
+    db,
+    weather: matchingWeather,
+    now: new Date('2026-08-24T15:00:00Z')
+  });
+  const cardNames = board.cards.map((card) => card.name);
+  const cardReasons = board.cards.map((card) => card.reason);
+  assert.equal(cardNames.length, 6);
+  assert.equal(new Set(cardNames).size, cardNames.length);
+  assert.equal(new Set(cardReasons).size, cardReasons.length);
+  db.close();
+});
+
 test('fake chit order changes deterministically across UTC dates', async () => {
   const db = openDb(':memory:');
   const first = await buildBoard({

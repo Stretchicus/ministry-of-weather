@@ -89,12 +89,25 @@ async function realCards(db, weather, now) {
 
 async function fakeCards(weather, now, occupied) {
   const cards = [];
+  const usedNames = new Set();
+  const usedReasons = new Set();
   for (const city of FEATURED_CITIES) {
     if (occupied.some((order) => occupiesCity(order, city))) continue;
     const actual = await weather.currentForCity(city);
     if (!actual) continue;
     const localDate = localDateString(now, city.timezone);
-    const filer = theatreFiler({ cityId: city.id, localDate, condition: actual.condition });
+    let filer;
+    for (let attempt = 0; attempt < 80; attempt += 1) {
+      filer = theatreFiler({
+        cityId: city.id,
+        localDate,
+        condition: actual.condition,
+        attempt
+      });
+      if (!usedNames.has(filer.name) && !usedReasons.has(filer.reason)) break;
+    }
+    usedNames.add(filer.name);
+    usedReasons.add(filer.reason);
     const requested = theatreRequestedWeather({ cityId: city.id, localDate, actual });
     cards.push(asCard({
       place: city.name,

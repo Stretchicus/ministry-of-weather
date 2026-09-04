@@ -19,8 +19,8 @@ function rivalForSlot({ latitude, longitude, localDate, period, actualCondition 
   return { name: pick(seed, names), reason: pick(Math.floor(seed / names.length), pool) };
 }
 
-function theatreFiler({ cityId, localDate, condition }) {
-  const seed = seedInt(`${cityId}|${localDate}`);
+function theatreFiler({ cityId, localDate, condition, attempt = 0 }) {
+  const seed = seedInt(attempt === 0 ? `${cityId}|${localDate}` : `${cityId}|${localDate}|${attempt}`);
   const pool = reasons[condition] || reasons.sun;
   return { name: pick(seed, names), reason: pick(Math.floor(seed / names.length), pool) };
 }
